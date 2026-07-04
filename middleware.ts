@@ -32,6 +32,10 @@ const ROLE_ROUTE_PREFIX: Record<string, string[]> = {
   "/internal/kelola-akun": ["super_admin"],
   "/internal/bobot-indikator": ["admin_bpsda", "super_admin", "eksekutif"],
   "/internal/laporan": ["eksekutif", "super_admin"],
+  "/internal/bumd/perencanaan": ["admin_bumd", "admin_bpsda", "eksekutif", "super_admin"],
+  "/internal/bumd/monitoring": ["admin_bumd", "admin_bpsda", "eksekutif", "super_admin"],
+  "/internal/bumd/dashboard-kinerja": ["admin_bumd", "admin_bpsda", "eksekutif", "super_admin"],
+  "/internal/bumd/risiko": ["admin_bumd", "admin_bpsda", "eksekutif", "super_admin"],
   "/internal/bumd": ["admin_bumd", "admin_bpsda", "super_admin", "eksekutif"],
   "/internal/blud": ["admin_blud", "admin_bpsda", "super_admin", "eksekutif"],
 };

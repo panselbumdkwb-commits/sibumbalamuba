@@ -27,8 +27,11 @@ Auth, RLS) + Vercel.
   akun, reset password, aktif/nonaktifkan — tidak perlu SQL Editor lagi)
 - ✅ **Surat & Dokumen** dengan pemisahan wewenang tanda tangan
   (`ketua_pansel` vs `panitia_seleksi` biasa)
-- ⏳ Modul Monev BUMD/BLUD performance-based (form indikator, workflow
-  verifikasi berjenjang) masih tahap skema, halaman frontend menyusul
+- ✅ **Monev BUMD Berbasis Kinerja** — 4 halaman terintegrasi:
+  Perencanaan Kinerja (RKAP + KPI/IKU), Monitoring Realisasi (lapor +
+  verifikasi), Dashboard Kinerja (visual), Manajemen Risiko
+- ⏳ Modul Monev **BLUD** performance-based (skema serupa BUMD, belum
+  dibuat) — beri tahu saya kalau dibutuhkan juga
 
 ## 1. Setup Supabase
 
@@ -47,6 +50,7 @@ Auth, RLS) + Vercel.
    - `supabase/migrations/0009_add_role_ketua_pansel.sql`
      **(jalankan ini SENDIRI, terpisah dari file lain — sama seperti 0006)**
    - `supabase/migrations/0010_wewenang_tandatangan_ketua_pansel.sql`
+   - `supabase/migrations/0011_monev_bumd_performance_based.sql`
    - `supabase/seed.sql` (opsional, data contoh)
 3. **Project Settings > API** → salin `Project URL` dan `anon public key`.
 4. Buat akun `super_admin` pertama lewat **Authentication > Add User**,
@@ -119,6 +123,10 @@ Development → Deploy.
 | `/internal/laporan` | eksekutif, super_admin | Ringkasan lintas entitas (lihat saja) |
 | `/internal/bumd/profil` | admin_bumd (edit), admin_bpsda/eksekutif (lihat saja), super_admin | Profil BUMD |
 | `/internal/blud/profil` | admin_blud (edit), admin_bpsda/eksekutif (lihat saja), super_admin | Profil BLUD |
+| `/internal/bumd/perencanaan` | admin_bumd, admin_bpsda, eksekutif, super_admin | RKAP & target KPI/IKU |
+| `/internal/bumd/monitoring` | admin_bumd, admin_bpsda, eksekutif, super_admin | Lapor & verifikasi realisasi |
+| `/internal/bumd/dashboard-kinerja` | admin_bumd, admin_bpsda, eksekutif, super_admin | Visual target vs realisasi |
+| `/internal/bumd/risiko` | admin_bumd, admin_bpsda, eksekutif, super_admin | Registrasi risiko |
 | `/internal/bobot-indikator` | admin_bpsda, eksekutif, super_admin | Bobot indikator evaluasi |
 | `/internal/seleksi` | panitia_seleksi, ketua_pansel, super_admin | Verifikasi berkas & batalkan pendaftaran |
 | `/internal/dokumen` | panitia_seleksi, ketua_pansel, super_admin | Surat: draf/ajukan (panitia), setujui/tanda tangan (ketua) |
@@ -239,9 +247,46 @@ Contoh akun yang bisa dibuat lewat fitur ini:
 
 > **Update**: `ketua_pansel` sekarang role TERSENDIRI (bukan lagi sama
 > dengan `panitia_seleksi`) — lihat halaman **Surat & Dokumen**
-> (`/internal/dokumen`) di bagian 7 untuk pembedanya.
+> (`/internal/dokumen`) di bagian 6 untuk pembedanya.
 
-## 8. Akun & Keamanan Login
+## 8. Modul Monev BUMD Berbasis Kinerja
+
+Menerjemahkan matriks data Monev BUMD (identitas, tata kelola,
+perencanaan, keuangan, operasional, pelayanan, kontribusi daerah,
+kepatuhan, SDM, risiko) menjadi 4 halaman kerja + reuse modul evaluasi
+yang sudah ada:
+
+| Halaman | Modul | Siapa menetapkan / mengisi |
+|---|---|---|
+| `/internal/bumd/perencanaan` | Perencanaan Kinerja (RKAP + KPI/IKU) | **Target** ditetapkan `admin_bpsda`/`super_admin` (fungsi pengawasan) |
+| `/internal/bumd/monitoring` | Monitoring Realisasi | **Realisasi** dilapor `admin_bumd` (kinerja sendiri), **diverifikasi** `admin_bpsda` |
+| `/internal/bumd/dashboard-kinerja` | Dashboard Kinerja | Visual capaian — hanya realisasi yang **sudah terverifikasi** yang tampil |
+| `/internal/bumd/risiko` | Manajemen Risiko | Dicatat `admin_bumd`, diawasi `admin_bpsda`/`super_admin` |
+| `/internal/laporan` (sudah ada) | Penilaian Kesehatan | Pakai ulang `evaluasi_bumd`/`konfigurasi_bobot` (0001) — skor & kategori kesehatan |
+
+**Kenapa target dan realisasi dipisah wewenangnya?** Kalau `admin_bumd`
+bisa menetapkan target KPI-nya sendiri, dia bisa menetapkan target yang
+mudah dicapai untuk terlihat baik di laporan. Target adalah fungsi
+**pengawasan** BPSDA; realisasi adalah **pelaporan** BUMD; verifikasi
+realisasi juga BPSDA — supaya tidak ada pihak yang menilai kinerjanya
+sendiri tanpa pemeriksaan independen.
+
+**Kenapa indikator KPI/rasio keuangan tidak dibuat jadi puluhan kolom
+tetap?** Dokumen sumber mencantumkan puluhan data detail (rasio
+keuangan, data operasional, data pelayanan, dst.) yang dikelompokkan ke
+5 perspektif IKU (keuangan, operasional, pelayanan, tata kelola,
+kontribusi daerah). Daripada membuat kolom tetap untuk tiap rasio (susah
+berkembang, perlu migration setiap kali ada indikator baru), dipakai
+pola **indikator fleksibel** (tabel `bumd_kpi` + `bumd_realisasi`) —
+BPSDA bebas menambah indikator apa pun di kategori mana pun langsung
+dari halaman Perencanaan, tanpa perlu migration SQL baru.
+
+**Catatan cakupan**: modul ini baru untuk **BUMD**. Dokumen sumber yang
+Anda kirim khusus membahas matriks Monev BUMD — kalau BLUD (5 UPT
+Puskesmas) butuh modul serupa, beri tahu saya struktur datanya (kalau
+beda dari BUMD) supaya bisa dibuatkan migration `0012` yang sejenis.
+
+## 9. Akun & Keamanan Login
 
 - Setiap pemilik akun bisa mengganti password sendiri kapan saja.
 - Verifikasi Turnstile wajib diselesaikan sebelum login/registrasi
@@ -251,7 +296,7 @@ Contoh akun yang bisa dibuat lewat fitur ini:
   (`constraint username_format`) — validasi ganda supaya tidak bisa
   dilewati lewat panggilan API langsung.
 
-## 9. Dasar Regulasi
+## 10. Dasar Regulasi
 
 - **PP No. 54 Tahun 2017** — Badan Usaha Milik Daerah
 - **Permendagri No. 37 Tahun 2018** — Pengelolaan BUMD
@@ -264,10 +309,10 @@ transparansi ke masyarakat. Sesuaikan/lengkapi dengan Peraturan Wali
 Kota Batu terbaru yang mengatur seleksi Direksi/Dewas/Komisaris BUMD
 setempat.
 
-## 10. Langkah Selanjutnya
+## 11. Langkah Selanjutnya
 
-1. Modul Monev BUMD/BLUD performance-based (8 tabel baru + halaman
-   `/internal/monev/*`) — lihat catatan desain di dokumen tahap terkait.
+1. Modul Monev **BLUD** performance-based (skema serupa BUMD di
+   migration `0011`, tapi untuk 5 UPT Puskesmas — belum dibuat).
 2. Halaman edit detail seleksi (`/internal/seleksi/[id]`) dengan riwayat
    tahapan lengkap.
 3. Form pendaftaran mandiri peserta Direksi (upload berkas) yang
@@ -277,4 +322,4 @@ setempat.
 5. Review keamanan oleh pihak kedua (four-eyes principle) untuk modul
    assisted-entry dan penilaian UKK, mengingat sensitivitasnya.
 6. Pertimbangkan role terpisah untuk "ketua panitia" vs anggota biasa
-   jika ada hak akses yang perlu dibedakan (lihat catatan di bagian 7).
+   jika ada hak akses yang perlu dibedakan (lihat catatan di bagian 6).

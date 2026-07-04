@@ -41,6 +41,21 @@ export type TahapPenilaian =
   | "wawancara";
 export type StatusDokumen = "draft" | "diajukan" | "disetujui" | "ditolak" | "diarsipkan";
 
+export type KategoriIku = "keuangan" | "operasional" | "pelayanan" | "tata_kelola" | "kontribusi_daerah";
+export type JenisPeriodeMonev =
+  | "triwulan_1"
+  | "triwulan_2"
+  | "triwulan_3"
+  | "triwulan_4"
+  | "semester_1"
+  | "semester_2"
+  | "tahunan";
+export type TingkatRisiko = "rendah" | "sedang" | "tinggi";
+export type KategoriRisiko = "strategis" | "keuangan" | "operasional" | "sdm" | "hukum" | "reputasi";
+export type StatusTindakLanjut = "belum_ditangani" | "dalam_proses" | "selesai";
+export type JenisKepatuhan = "rkap" | "laporan_triwulan" | "laporan_tahunan" | "opini_auditor" | "perizinan";
+export type StatusKepatuhan = "tepat_waktu" | "terlambat" | "belum_disampaikan";
+
 export type Database = {
   public: {
     Tables: {
@@ -86,6 +101,17 @@ export type Database = {
           jenis_usaha: string | null;
           status: string;
           profil_singkat: string | null;
+          bentuk_hukum: string | null;
+          nomor_perda: string | null;
+          tahun_berdiri: number | null;
+          modal_dasar: number | null;
+          modal_disetor: number | null;
+          penyertaan_modal_pemda: number | null;
+          persentase_kepemilikan_daerah: number | null;
+          alamat_kantor: string | null;
+          website: string | null;
+          npwp: string | null;
+          nib: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -95,12 +121,34 @@ export type Database = {
           jenis_usaha?: string | null;
           status?: string;
           profil_singkat?: string | null;
+          bentuk_hukum?: string | null;
+          nomor_perda?: string | null;
+          tahun_berdiri?: number | null;
+          modal_dasar?: number | null;
+          modal_disetor?: number | null;
+          penyertaan_modal_pemda?: number | null;
+          persentase_kepemilikan_daerah?: number | null;
+          alamat_kantor?: string | null;
+          website?: string | null;
+          npwp?: string | null;
+          nib?: string | null;
         };
         Update: Partial<{
           nama: string;
           jenis_usaha: string | null;
           status: string;
           profil_singkat: string | null;
+          bentuk_hukum: string | null;
+          nomor_perda: string | null;
+          tahun_berdiri: number | null;
+          modal_dasar: number | null;
+          modal_disetor: number | null;
+          penyertaan_modal_pemda: number | null;
+          persentase_kepemilikan_daerah: number | null;
+          alamat_kantor: string | null;
+          website: string | null;
+          npwp: string | null;
+          nib: string | null;
         }>;
         Relationships: [];
       };
@@ -127,6 +175,239 @@ export type Database = {
           jenis_layanan: string | null;
           status: string;
           profil_singkat: string | null;
+        }>;
+        Relationships: [];
+      };
+
+      bumd_organ: {
+        Row: {
+          id: string;
+          bumd_id: string;
+          nama: string;
+          jabatan: string;
+          sk_pengangkatan: string | null;
+          mulai_menjabat: string | null;
+          akhir_menjabat: string | null;
+          pendidikan_terakhir: string | null;
+          sertifikat_kompetensi: string | null;
+          kehadiran_rups_persen: number | null;
+          is_aktif: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          bumd_id: string;
+          nama: string;
+          jabatan: string;
+          sk_pengangkatan?: string | null;
+          mulai_menjabat?: string | null;
+          akhir_menjabat?: string | null;
+          pendidikan_terakhir?: string | null;
+          sertifikat_kompetensi?: string | null;
+          kehadiran_rups_persen?: number | null;
+          is_aktif?: boolean;
+        };
+        Update: Partial<{
+          nama: string;
+          jabatan: string;
+          sk_pengangkatan: string | null;
+          mulai_menjabat: string | null;
+          akhir_menjabat: string | null;
+          pendidikan_terakhir: string | null;
+          sertifikat_kompetensi: string | null;
+          kehadiran_rups_persen: number | null;
+          is_aktif: boolean;
+        }>;
+        Relationships: [];
+      };
+
+      bumd_rencana_bisnis: {
+        Row: {
+          id: string;
+          bumd_id: string;
+          tahun_mulai: number;
+          tahun_selesai: number;
+          ringkasan: string | null;
+          file_path: string | null;
+          status: StatusDokumen;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          bumd_id: string;
+          tahun_mulai: number;
+          tahun_selesai: number;
+          ringkasan?: string | null;
+          file_path?: string | null;
+          status?: StatusDokumen;
+        };
+        Update: Partial<{
+          tahun_mulai: number;
+          tahun_selesai: number;
+          ringkasan: string | null;
+          file_path: string | null;
+          status: StatusDokumen;
+        }>;
+        Relationships: [];
+      };
+
+      bumd_rkap: {
+        Row: {
+          id: string;
+          bumd_id: string;
+          tahun: number;
+          target_pendapatan: number | null;
+          target_laba: number | null;
+          target_dividen: number | null;
+          target_investasi: number | null;
+          status: StatusDokumen;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          bumd_id: string;
+          tahun: number;
+          target_pendapatan?: number | null;
+          target_laba?: number | null;
+          target_dividen?: number | null;
+          target_investasi?: number | null;
+          status?: StatusDokumen;
+        };
+        Update: Partial<{
+          tahun: number;
+          target_pendapatan: number | null;
+          target_laba: number | null;
+          target_dividen: number | null;
+          target_investasi: number | null;
+          status: StatusDokumen;
+        }>;
+        Relationships: [];
+      };
+
+      bumd_kpi: {
+        Row: {
+          id: string;
+          bumd_id: string;
+          tahun: number;
+          kategori: KategoriIku;
+          nama_indikator: string;
+          target_nilai: number;
+          satuan: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          bumd_id: string;
+          tahun: number;
+          kategori: KategoriIku;
+          nama_indikator: string;
+          target_nilai: number;
+          satuan?: string | null;
+        };
+        Update: Partial<{
+          tahun: number;
+          kategori: KategoriIku;
+          nama_indikator: string;
+          target_nilai: number;
+          satuan: string | null;
+        }>;
+        Relationships: [];
+      };
+
+      bumd_realisasi: {
+        Row: {
+          id: string;
+          bumd_kpi_id: string;
+          periode: JenisPeriodeMonev;
+          nilai_realisasi: number;
+          catatan: string | null;
+          status_verifikasi: string;
+          diinput_oleh: string | null;
+          diverifikasi_oleh: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          bumd_kpi_id: string;
+          periode: JenisPeriodeMonev;
+          nilai_realisasi: number;
+          catatan?: string | null;
+          status_verifikasi?: string;
+          diinput_oleh?: string | null;
+          diverifikasi_oleh?: string | null;
+        };
+        Update: Partial<{
+          nilai_realisasi: number;
+          catatan: string | null;
+          status_verifikasi: string;
+          diverifikasi_oleh: string | null;
+        }>;
+        Relationships: [];
+      };
+
+      bumd_risiko: {
+        Row: {
+          id: string;
+          bumd_id: string;
+          tahun: number;
+          kategori: KategoriRisiko;
+          deskripsi: string;
+          tingkat: TingkatRisiko;
+          mitigasi: string | null;
+          status: StatusTindakLanjut;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          bumd_id: string;
+          tahun: number;
+          kategori: KategoriRisiko;
+          deskripsi: string;
+          tingkat: TingkatRisiko;
+          mitigasi?: string | null;
+          status?: StatusTindakLanjut;
+        };
+        Update: Partial<{
+          tahun: number;
+          kategori: KategoriRisiko;
+          deskripsi: string;
+          tingkat: TingkatRisiko;
+          mitigasi: string | null;
+          status: StatusTindakLanjut;
+        }>;
+        Relationships: [];
+      };
+
+      bumd_kepatuhan: {
+        Row: {
+          id: string;
+          bumd_id: string;
+          tahun: number;
+          jenis: JenisKepatuhan;
+          status: StatusKepatuhan;
+          tanggal_pemenuhan: string | null;
+          keterangan: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          bumd_id: string;
+          tahun: number;
+          jenis: JenisKepatuhan;
+          status?: StatusKepatuhan;
+          tanggal_pemenuhan?: string | null;
+          keterangan?: string | null;
+        };
+        Update: Partial<{
+          tahun: number;
+          jenis: JenisKepatuhan;
+          status: StatusKepatuhan;
+          tanggal_pemenuhan: string | null;
+          keterangan: string | null;
         }>;
         Relationships: [];
       };
@@ -442,6 +723,13 @@ export type Database = {
       status_seleksi: StatusSeleksi;
       tahap_penilaian: TahapPenilaian;
       status_dokumen: StatusDokumen;
+      kategori_iku: KategoriIku;
+      jenis_periode_monev: JenisPeriodeMonev;
+      tingkat_risiko: TingkatRisiko;
+      kategori_risiko: KategoriRisiko;
+      status_tindak_lanjut: StatusTindakLanjut;
+      jenis_kepatuhan: JenisKepatuhan;
+      status_kepatuhan: StatusKepatuhan;
     };
     CompositeTypes: Record<string, never>;
   };
