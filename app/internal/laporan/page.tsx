@@ -1,5 +1,6 @@
 import { requireRole } from "@/lib/auth/rbac";
 import { createClient } from "@/lib/supabase/server";
+import PageHeader from "../_components/page-header";
 
 const STATUS_LABEL: Record<string, string> = {
   terdaftar: "Terdaftar",
@@ -43,13 +44,12 @@ export default async function LaporanPimpinanPage() {
 
   return (
     <main className="p-6 max-w-4xl mx-auto flex flex-col gap-6">
-      <div>
-        <h1 className="text-xl font-semibold text-slate-900">Laporan Ringkas Pimpinan</h1>
-        <p className="text-sm text-slate-500 mt-1">
-          Ringkasan lintas entitas untuk keperluan pengawasan pimpinan.
-          Halaman ini bersifat lihat-saja.
-        </p>
-      </div>
+      <PageHeader
+        icon="📊"
+        color="bg-violet-50 text-violet-700"
+        title="Laporan Ringkas Pimpinan"
+        description="Ringkasan lintas entitas untuk keperluan pengawasan pimpinan. Halaman ini bersifat lihat-saja."
+      />
 
       <div className="grid sm:grid-cols-3 gap-4">
         <SummaryCard label="Total BUMD" value={bumdList?.length ?? 0} />

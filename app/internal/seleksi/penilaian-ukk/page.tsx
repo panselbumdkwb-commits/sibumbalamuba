@@ -1,4 +1,5 @@
 import { requireRole } from "@/lib/auth/rbac";
+import PageHeader from "../../_components/page-header";
 
 /**
  * Halaman ini SENGAJA tidak pernah menerima role selain tim_ukk/super_admin.
@@ -11,11 +12,16 @@ export default async function PenilaianUkkPage() {
   await requireRole(["tim_ukk", "super_admin"]);
 
   return (
-    <main className="p-6">
-      <h1 className="text-xl font-medium">Penilaian UKK</h1>
-      <p className="text-sm text-gray-500 mt-1">
+    <main className="p-6 max-w-3xl mx-auto flex flex-col gap-6">
+      <PageHeader
+        icon="📝"
+        color="bg-accent-50 text-accent-700"
+        title="Penilaian UKK"
+        description="Nilai yang Anda input di sini hanya terlihat oleh Anda sendiri dan super_admin, sampai direkap rata-rata dengan 4 penilai lain."
+      />
+      <div className="card p-6 text-sm text-slate-500">
         Daftar peserta yang ditugaskan ke sesi Anda akan tampil di sini.
-      </p>
+      </div>
     </main>
   );
 }

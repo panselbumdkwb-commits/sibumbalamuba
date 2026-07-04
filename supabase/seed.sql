@@ -1,5 +1,5 @@
 -- ============================================================
--- SEED DATA — SIBUMBALUMBA
+-- SEED DATA — SIBUMBALAMUBA
 -- ============================================================
 -- Jalankan SETELAH migration 0001 dan 0002 berhasil.
 -- Aman dijalankan berulang kali (pakai on conflict).

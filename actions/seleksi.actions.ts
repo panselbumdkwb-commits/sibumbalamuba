@@ -51,7 +51,7 @@ export async function registerPesertaDireksi(input: unknown) {
 
 // FR-16: verifikasi berkas administrasi — HANYA panitia_seleksi/super_admin
 export async function verifyBerkas(input: unknown) {
-  await requireRole(["panitia_seleksi", "super_admin"]);
+  await requireRole(["panitia_seleksi", "ketua_pansel", "super_admin"]);
 
   const parsed = verifyBerkasSchema.safeParse(input);
   if (!parsed.success) {
@@ -113,7 +113,7 @@ export async function assistedRegisterPeserta(input: unknown) {
 // status peserta_seleksi (beda dengan assisted-entry/nilai_ukk final yang
 // sudah punya trigger otomatis).
 export async function batalkanPendaftaran(input: unknown) {
-  const profile = await requireRole(["panitia_seleksi", "super_admin"]);
+  const profile = await requireRole(["panitia_seleksi", "ketua_pansel", "super_admin"]);
 
   const parsed = batalkanPendaftaranSchema.safeParse(input);
   if (!parsed.success) {

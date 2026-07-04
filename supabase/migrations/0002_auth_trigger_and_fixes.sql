@@ -1,6 +1,6 @@
 -- ============================================================
 -- 0002 — PERBAIKAN & PELENGKAP TAHAP 12
--- SIBUMBALUMBA
+-- SIBUMBALAMUBA
 -- ============================================================
 -- Tujuan migration ini:
 -- 1. Mencegah kegagalan login akibat auth.users terisi tapi

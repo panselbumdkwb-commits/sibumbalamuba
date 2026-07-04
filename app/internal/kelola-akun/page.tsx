@@ -2,6 +2,7 @@ import { requireRole } from "@/lib/auth/rbac";
 import { createClient } from "@/lib/supabase/server";
 import CreateAccountForm from "./create-account-form";
 import AccountRow from "./account-row";
+import PageHeader from "../_components/page-header";
 
 const ROLE_LABEL: Record<string, string> = {
   super_admin: "Super Admin",
@@ -9,6 +10,7 @@ const ROLE_LABEL: Record<string, string> = {
   admin_bumd: "Admin BUMD",
   admin_blud: "Admin BLUD",
   panitia_seleksi: "Panitia Seleksi",
+  ketua_pansel: "Ketua Panitia Seleksi",
   tim_ukk: "Tim Penilai UKK",
   peserta: "Peserta",
   eksekutif: "Pimpinan (Eksekutif)",
@@ -37,14 +39,12 @@ export default async function KelolaAkunPage() {
 
   return (
     <main className="p-6 max-w-4xl mx-auto flex flex-col gap-6">
-      <div>
-        <h1 className="text-xl font-semibold text-slate-900">Kelola Akun Pengguna</h1>
-        <p className="text-sm text-slate-500 mt-1">
-          Buat akun baru, reset password, atau nonaktifkan akun internal.
-          Akun peserta tidak dikelola di sini (peserta mendaftar mandiri
-          lewat halaman publik).
-        </p>
-      </div>
+      <PageHeader
+        icon="👥"
+        color="bg-fuchsia-50 text-fuchsia-700"
+        title="Kelola Akun Pengguna"
+        description="Buat akun baru, reset password, atau nonaktifkan akun internal. Akun peserta tidak dikelola di sini (peserta mendaftar mandiri lewat halaman publik)."
+      />
 
       <CreateAccountForm bumdList={bumdList ?? []} bludList={bludList ?? []} />
 

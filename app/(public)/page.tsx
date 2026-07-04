@@ -18,8 +18,17 @@ export default async function PublicLandingPage() {
       <Navbar />
 
       {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-primary-950 via-primary-900 to-primary-800 text-white">
-        <div className="absolute inset-0 opacity-[0.07] bg-[radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] [background-size:24px_24px]" />
+      <section className="relative overflow-hidden text-white">
+        <div className="absolute inset-0">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/kota-batu-aerial.jpg"
+            alt="Pemandangan udara Kota Batu"
+            className="h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-primary-950/90 via-primary-900/85 to-primary-950/95" />
+          <div className="absolute inset-0 opacity-[0.06] bg-[radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] [background-size:24px_24px]" />
+        </div>
         <div className="relative max-w-6xl mx-auto px-6 py-20 sm:py-28 text-center">
           <span className="badge bg-brand-500/15 text-brand-300 border border-brand-400/30 mb-5">
             Portal Resmi Pemerintah Kota Batu

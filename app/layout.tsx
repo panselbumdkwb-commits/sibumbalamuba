@@ -3,8 +3,8 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "SIBUMBALUMBA — Kota Batu",
-    template: "%s · SIBUMBALUMBA",
+    default: "SIBUMBALAMUBA — Kota Batu",
+    template: "%s · SIBUMBALAMUBA",
   },
   description:
     "Sistem Informasi BUMD dan BLUD Kota Batu — manajemen, monitoring, evaluasi kinerja, dan seleksi Direksi/Dewan Pengawas/Komisaris secara transparan dan akuntabel.",

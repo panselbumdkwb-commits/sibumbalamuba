@@ -20,7 +20,7 @@ export default function AuthShell({
           <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/15 font-bold text-sm">
             SB
           </span>
-          <span className="font-semibold">SIBUMBALUMBA</span>
+          <span className="font-semibold">SIBUMBALAMUBA</span>
         </Link>
         <div>
           <h2 className="text-2xl font-semibold leading-snug max-w-sm">

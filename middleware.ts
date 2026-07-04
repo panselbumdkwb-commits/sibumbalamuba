@@ -17,6 +17,7 @@ const INTERNAL_ROLES = [
   "admin_bumd",
   "admin_blud",
   "panitia_seleksi",
+  "ketua_pansel",
   "tim_ukk",
   "eksekutif",
 ];
@@ -25,7 +26,8 @@ const PESERTA_ROLES = ["peserta"];
 const ROLE_ROUTE_PREFIX: Record<string, string[]> = {
   "/internal/seleksi/penilaian-ukk": ["tim_ukk", "super_admin"],
   "/internal/seleksi/dewas-komisaris/assisted-entry": ["super_admin"],
-  "/internal/seleksi": ["panitia_seleksi", "super_admin"],
+  "/internal/seleksi": ["panitia_seleksi", "ketua_pansel", "super_admin"],
+  "/internal/dokumen": ["panitia_seleksi", "ketua_pansel", "super_admin"],
   "/internal/audit-log": ["super_admin"],
   "/internal/kelola-akun": ["super_admin"],
   "/internal/bobot-indikator": ["admin_bpsda", "super_admin", "eksekutif"],

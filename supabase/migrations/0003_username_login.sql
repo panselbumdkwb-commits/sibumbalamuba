@@ -1,6 +1,6 @@
 -- ============================================================
 -- 0003 — USERNAME-BASED LOGIN SUPPORT
--- SIBUMBALUMBA
+-- SIBUMBALAMUBA
 -- ============================================================
 -- Supabase Auth secara native hanya login dengan email. Untuk mendukung
 -- login dengan USERNAME (sesuai kebutuhan: akun pemda & peserta tidak

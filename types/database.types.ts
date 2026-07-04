@@ -17,6 +17,7 @@ export type UserRole =
   | "admin_bumd"
   | "admin_blud"
   | "panitia_seleksi"
+  | "ketua_pansel"
   | "tim_ukk"
   | "peserta"
   | "eksekutif";

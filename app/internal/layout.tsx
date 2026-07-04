@@ -13,7 +13,7 @@ export default function InternalLayout({
         style={{ borderColor: "var(--color-border)" }}
       >
         <Link href="/internal/dashboard" className="font-medium text-sm">
-          SIBUMBALUMBA
+          SIBUMBALAMUBA
         </Link>
         <LogoutButton />
       </header>

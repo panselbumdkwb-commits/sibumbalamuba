@@ -10,7 +10,8 @@ const ROLE_OPTIONS = [
   { value: "admin_bpsda", label: "Admin BPSDA (lihat saja, lintas entitas)" },
   { value: "admin_bumd", label: "Admin BUMD (kelola 1 entitas)" },
   { value: "admin_blud", label: "Admin BLUD (kelola 1 entitas)" },
-  { value: "panitia_seleksi", label: "Panitia Seleksi" },
+  { value: "panitia_seleksi", label: "Panitia Seleksi (anggota)" },
+  { value: "ketua_pansel", label: "Ketua Panitia Seleksi (bisa tanda tangan surat)" },
   { value: "tim_ukk", label: "Tim Penilai UKK" },
   { value: "eksekutif", label: "Pimpinan (Eksekutif — lihat saja)" },
   { value: "super_admin", label: "Super Admin" },
@@ -121,7 +122,7 @@ export default function CreateAccountForm({
             type="email"
             required
             className="input"
-            placeholder="boleh email internal (mis. nama@sibumbalumba.internal)"
+            placeholder="boleh email internal (mis. nama@sibumbalamuba.internal)"
             value={form.email}
             onChange={(e) => update("email", e.target.value)}
           />

@@ -16,7 +16,7 @@ export default function Navbar() {
             SB
           </span>
           <div className="leading-tight">
-            <p className="font-semibold text-sm text-slate-900">SIBUMBALUMBA</p>
+            <p className="font-semibold text-sm text-slate-900">SIBUMBALAMUBA</p>
             <p className="text-[11px] text-slate-400">Pemerintah Kota Batu</p>
           </div>
         </Link>

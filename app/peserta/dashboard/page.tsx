@@ -45,15 +45,23 @@ export default async function PesertaDashboardPage() {
   const rekapList = rekapAll?.filter((r) => pesertaIds.includes(r.peserta_id));
 
   return (
-    <main className="max-w-3xl mx-auto p-6 flex flex-col gap-6">
-      <div>
-        <h1 className="text-xl font-semibold text-slate-900">
-          Halo, {profile.namaLengkap}
-        </h1>
-        <p className="text-sm text-slate-500 mt-1">
-          Pantau status pendaftaran dan tahapan seleksi Anda di sini.
-        </p>
+    <div className="flex flex-col">
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/images/kota-batu-aerial.jpg" alt="" className="h-full w-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-r from-accent-900/90 via-accent-800/85 to-primary-900/80" />
+        </div>
+        <div className="relative px-6 py-10 sm:py-12 text-white">
+          <p className="text-sm text-accent-100/80">Halo,</p>
+          <h1 className="text-2xl font-semibold mt-0.5">{profile.namaLengkap}</h1>
+          <p className="text-sm text-accent-100/80 mt-2 max-w-md">
+            Pantau status pendaftaran dan tahapan seleksi Anda di sini.
+          </p>
+        </div>
       </div>
+
+      <main className="max-w-3xl mx-auto w-full p-6 flex flex-col gap-6">
 
       {pendaftaran?.map((p) => (
         <div key={p.id} className="card p-5">
@@ -129,6 +137,7 @@ export default async function PesertaDashboardPage() {
           Anda belum terdaftar di seleksi manapun.
         </div>
       )}
-    </main>
+      </main>
+    </div>
   );
 }

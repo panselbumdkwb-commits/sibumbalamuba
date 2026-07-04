@@ -1,5 +1,6 @@
 import { requireRole } from "@/lib/auth/rbac";
 import { createClient } from "@/lib/supabase/server";
+import PageHeader from "../_components/page-header";
 
 export default async function BobotIndikatorPage() {
   await requireRole(["admin_bpsda", "super_admin", "eksekutif"]);

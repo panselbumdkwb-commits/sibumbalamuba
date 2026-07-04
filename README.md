@@ -1,4 +1,4 @@
-# SIBUMBALUMBA
+# SIBUMBALAMUBA
 
 Sistem Informasi BUMD-BLUD Kota Batu — manajemen, monitoring, evaluasi, dan
 seleksi Direksi/Dewan Pengawas/Komisaris. Next.js 15 + Supabase (Postgres,
@@ -7,9 +7,10 @@ Auth, RLS) + Vercel.
 ## Status paket ini
 
 - ✅ `npm run build` sukses, `npm run test` sukses (16 test)
-- ✅ Desain modern: hero publik, kartu, palet warna khusus (navy + hijau),
-  tanpa dependensi font eksternal saat build (font sistem, lebih stabil &
-  cepat, tidak mengirim data ke Google Fonts)
+- ✅ Desain modern: hero publik & Dashboard Internal pakai foto udara
+  Kota Batu sebagai latar (dibuat AI), kartu berwarna dengan ikon per
+  menu, header berwarna berbeda tiap halaman supaya terasa beda saat
+  berpindah "layer"
 - ✅ **Dua portal login terpisah**: `/login/internal` (pegawai pemda) dan
   `/login/peserta` (peserta seleksi) — tidak bisa saling menyeberang,
   dijaga di sisi client, middleware, dan RLS
@@ -18,9 +19,14 @@ Auth, RLS) + Vercel.
   kata sandi, tapi tidak dipakai sehari-hari untuk login)
 - ✅ **Verifikasi manusia (Cloudflare Turnstile)** terpasang di form login
   dan registrasi
-- ✅ **7 role dengan hak akses terpisah jelas**: `super_admin`,
-  `admin_bpsda`, `admin_bumd`, `admin_blud`, `panitia_seleksi`, `tim_ukk`,
-  `peserta` — lihat matriks di bagian 6
+- ✅ **9 role dengan hak akses terpisah jelas**: `super_admin`,
+  `admin_bpsda`, `admin_bumd`, `admin_blud`, `panitia_seleksi`,
+  `ketua_pansel`, `tim_ukk`, `eksekutif`, `peserta` — lihat matriks di
+  bagian 6
+- ✅ **Kelola Akun Pengguna** langsung dari aplikasi (`super_admin` buat
+  akun, reset password, aktif/nonaktifkan — tidak perlu SQL Editor lagi)
+- ✅ **Surat & Dokumen** dengan pemisahan wewenang tanda tangan
+  (`ketua_pansel` vs `panitia_seleksi` biasa)
 - ⏳ Modul Monev BUMD/BLUD performance-based (form indikator, workflow
   verifikasi berjenjang) masih tahap skema, halaman frontend menyusul
 
@@ -38,6 +44,9 @@ Auth, RLS) + Vercel.
      dalam file, ini batasan Postgres untuk enum baru)**
    - `supabase/migrations/0007_rbac_readonly_dan_ukk_multipenilai.sql`
    - `supabase/migrations/0008_ganti_view_rekap_jadi_fungsi.sql`
+   - `supabase/migrations/0009_add_role_ketua_pansel.sql`
+     **(jalankan ini SENDIRI, terpisah dari file lain — sama seperti 0006)**
+   - `supabase/migrations/0010_wewenang_tandatangan_ketua_pansel.sql`
    - `supabase/seed.sql` (opsional, data contoh)
 3. **Project Settings > API** → salin `Project URL` dan `anon public key`.
 4. Buat akun `super_admin` pertama lewat **Authentication > Add User**,
@@ -79,7 +88,9 @@ npm run build    # verifikasi production build + type-check
 ```bash
 git init && git add . && git commit -m "Redesain modern + dual portal + username auth"
 git branch -M main
-git remote add origin https://github.com/panselbumdkwb-commits/sibumbalumba.git
+# Ganti URL di bawah dengan nama repo GitHub Anda yang SEBENARNYA — nama
+# aplikasi (SIBUMBALAMUBA) tidak harus sama dengan nama repo Git.
+git remote add origin https://github.com/panselbumdkwb-commits/sibumbalamuba.git
 git push -u origin main
 ```
 
@@ -104,13 +115,16 @@ Development → Deploy.
 | `/login/internal` | Publik | Login pegawai pemda (6 role internal) |
 | `/login/peserta` | Publik | Login peserta seleksi |
 | `/daftar` | Publik | Registrasi akun peserta (username + email) |
-| `/internal/dashboard` | 6 role internal | Menu dinamis sesuai role |
-| `/internal/bumd/profil` | admin_bumd, admin_bpsda, super_admin | Kelola profil BUMD (scoped) |
-| `/internal/blud/profil` | admin_blud, admin_bpsda, super_admin | Kelola profil BLUD (scoped) |
-| `/internal/bobot-indikator` | admin_bpsda, super_admin | Atur bobot indikator evaluasi |
-| `/internal/seleksi` | panitia_seleksi, super_admin | Verifikasi berkas administrasi |
+| `/internal/dashboard` | 9 role internal | Menu dinamis sesuai role |
+| `/internal/laporan` | eksekutif, super_admin | Ringkasan lintas entitas (lihat saja) |
+| `/internal/bumd/profil` | admin_bumd (edit), admin_bpsda/eksekutif (lihat saja), super_admin | Profil BUMD |
+| `/internal/blud/profil` | admin_blud (edit), admin_bpsda/eksekutif (lihat saja), super_admin | Profil BLUD |
+| `/internal/bobot-indikator` | admin_bpsda, eksekutif, super_admin | Bobot indikator evaluasi |
+| `/internal/seleksi` | panitia_seleksi, ketua_pansel, super_admin | Verifikasi berkas & batalkan pendaftaran |
+| `/internal/dokumen` | panitia_seleksi, ketua_pansel, super_admin | Surat: draf/ajukan (panitia), setujui/tanda tangan (ketua) |
 | `/internal/seleksi/dewas-komisaris/assisted-entry` | super_admin | Assisted-entry |
-| `/internal/seleksi/penilaian-ukk` | tim_ukk, super_admin | Input nilai UKK |
+| `/internal/seleksi/penilaian-ukk` | tim_ukk, super_admin | Input nilai UKK (nilai sendiri) |
+| `/internal/kelola-akun` | super_admin | Buat akun, reset password, aktif/nonaktif |
 | `/internal/audit-log` | super_admin | Log aksi sensitif |
 | `/peserta/dashboard` | peserta | Status pendaftaran, berkas, nilai final |
 
@@ -149,7 +163,8 @@ implementasi database-nya.
 | `admin_bpsda` | **Lihat saja** (read-only) semua BUMD/BLUD, evaluasi, bobot indikator, lintas entitas | Mengubah profil BUMD/BLUD, assisted-entry, verifikasi berkas seleksi, input nilai UKK |
 | `admin_bumd` | Kelola profil & data BUMD miliknya sendiri saja (`entity_id`) | Data BUMD lain, data BLUD, seleksi, nilai UKK |
 | `admin_blud` | Kelola profil & data BLUD miliknya sendiri saja | Data BLUD lain, data BUMD, seleksi, nilai UKK |
-| `panitia_seleksi` | Kelola administrasi seleksi, verifikasi berkas, **batalkan pendaftaran** (mis. peserta mengundurkan diri), lihat rekap UKK (bukan nilai mentah) | **Nilai UKK mentah per penilai** (disengaja — pemisahan tugas), assisted-entry |
+| `panitia_seleksi` | Kelola administrasi seleksi, verifikasi berkas, **batalkan pendaftaran** (mis. peserta mengundurkan diri), lihat rekap UKK (bukan nilai mentah), buat draf & ajukan surat | **Nilai UKK mentah per penilai** (disengaja — pemisahan tugas), assisted-entry, **menyetujui/menandatangani surat sendiri** |
+| `ketua_pansel` | Sama seperti `panitia_seleksi` di atas, **plus** satu-satunya (selain super_admin) yang boleh menyetujui/menandatangani surat resmi panitia | Assisted-entry |
 | `tim_ukk` | Input & finalisasi nilai UKK miliknya sendiri untuk **semua peserta di semua tahap** (psikotes, tes tulis, wawancara, presentasi) | Nilai UKK milik 4 anggota tim lain, data administrasi seleksi, data BUMD/BLUD |
 | `eksekutif` | **Lihat saja** ringkasan lintas entitas (BUMD, BLUD, evaluasi, status seleksi) untuk pimpinan (Asisten Perekonomian dan Pembangunan, Sekda) | Mengubah data apa pun, nilai UKK mentah, berkas individual peserta |
 | `peserta` | Data pendaftaran & hasil miliknya sendiri saja (nilai UKK yang tampil adalah **rata-rata dari 5 tim penilai**, bukan nilai mentah individual) | Data peserta lain, semua data internal |
@@ -162,6 +177,22 @@ Pemisahan ini ditegakkan di **tiga lapisan sekaligus** (defense in depth):
    tiap page dan server action) — lapisan kedua.
 3. **`middleware.ts`** — lapisan UX, mencegah render halaman yang tidak
    relevan dan memisahkan portal internal vs peserta.
+
+### Surat & Dokumen — pembeda `panitia_seleksi` vs `ketua_pansel`
+
+Halaman `/internal/dokumen` mengimplementasikan alur:
+
+```
+draft (dibuat panitia) → diajukan (panitia) → disetujui/ditolak (HANYA ketua_pansel/super_admin)
+```
+
+Anggota panitia biasa **bisa** membuat draf surat dan mengajukannya, tapi
+**tidak bisa** menyetujui/menandatangani surat yang dia buat sendiri —
+tombol "Setujui & Tanda Tangani" hanya muncul untuk `ketua_pansel`. Ini
+ditegakkan di RLS (migration `0010`, policy
+`dokumen_internal_update_approver`), bukan cuma disembunyikan di
+tampilan — kalau anggota panitia biasa mencoba memanggil update lewat
+API langsung, database tetap menolak.
 
 ### Penilaian UKK oleh 5 tim penilai (direkap)
 
@@ -201,17 +232,14 @@ Contoh akun yang bisa dibuat lewat fitur ini:
 | `kabag_bpsda` | `admin_bpsda` | Lihat saja, lintas entitas |
 | `admin_asisten` | `eksekutif` | Asisten Perekonomian dan Pembangunan |
 | `admin_sekda` | `eksekutif` | Sekretaris Daerah |
-| `ketua_pansel` | `panitia_seleksi` | Ketua panitia seleksi |
+| `ketua_pansel` | `ketua_pansel` | Ketua panitia seleksi — role terpisah, satu-satunya yang bisa menyetujui/menandatangani surat |
 | `penilai_ukk01` … `penilai_ukk05` | `tim_ukk` | 5 akun terpisah, satu per anggota tim penilai |
 | (satu per entitas) | `admin_bumd` | Perlu 1 akun untuk Perumdam Among Tirto, 1 untuk PT. Batu Wisata Resource |
 | (satu per entitas) | `admin_blud` | Perlu 1 akun untuk tiap UPT Puskesmas (5 akun) |
 
-> **Catatan**: `ketua_pansel` di atas dibuat dengan role `panitia_seleksi`
-> yang sama dengan anggota panitia lain — sistem saat ini belum
-> membedakan hak akses "ketua" vs "anggota" panitia. Kalau ketua panitia
-> perlu hak tambahan (mis. satu-satunya yang boleh membatalkan
-> pendaftaran, atau approval final), beri tahu saya supaya dibuatkan role
-> terpisah.
+> **Update**: `ketua_pansel` sekarang role TERSENDIRI (bukan lagi sama
+> dengan `panitia_seleksi`) — lihat halaman **Surat & Dokumen**
+> (`/internal/dokumen`) di bagian 7 untuk pembedanya.
 
 ## 8. Akun & Keamanan Login
 

@@ -7,6 +7,7 @@ export const roleYangBisaDibuatSuperAdmin = z.enum([
   "admin_bumd",
   "admin_blud",
   "panitia_seleksi",
+  "ketua_pansel",
   "tim_ukk",
   "eksekutif",
   "super_admin",

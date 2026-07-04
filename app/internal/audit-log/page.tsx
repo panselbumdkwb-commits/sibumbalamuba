@@ -1,5 +1,6 @@
 import { requireRole } from "@/lib/auth/rbac";
 import { createClient } from "@/lib/supabase/server";
+import PageHeader from "../_components/page-header";
 
 /**
  * FR terkait audit: hanya super_admin yang boleh melihat seluruh log
@@ -17,41 +18,38 @@ export default async function AuditLogPage() {
     .limit(100);
 
   return (
-    <main className="p-6 max-w-4xl mx-auto flex flex-col gap-4">
-      <h1 className="text-xl font-medium">Audit Log</h1>
-      <p className="text-sm text-gray-500">
-        100 aksi sensitif terbaru (assisted-entry, finalisasi nilai UKK, dll).
-        Log ini bersifat append-only — tidak ada baris yang bisa dihapus atau
-        diubah.
-      </p>
+    <main className="p-6 max-w-4xl mx-auto flex flex-col gap-6">
+      <PageHeader
+        icon="🛡️"
+        color="bg-slate-100 text-slate-700"
+        title="Audit Log"
+        description="100 aksi sensitif terbaru (assisted-entry, finalisasi nilai UKK, tanda tangan surat, dll). Log ini bersifat append-only — tidak ada baris yang bisa dihapus atau diubah."
+      />
 
-      <div
-        className="border rounded-lg overflow-hidden"
-        style={{ borderColor: "var(--color-border)" }}
-      >
+      <div className="card overflow-hidden">
         <table className="w-full text-sm text-left">
-          <thead className="bg-gray-50 text-xs uppercase text-gray-500">
+          <thead className="bg-slate-50 text-xs uppercase text-slate-500">
             <tr>
-              <th className="px-4 py-2">Waktu</th>
-              <th className="px-4 py-2">Aksi</th>
-              <th className="px-4 py-2">Tabel</th>
-              <th className="px-4 py-2">ID Record</th>
+              <th className="px-4 py-2.5">Waktu</th>
+              <th className="px-4 py-2.5">Aksi</th>
+              <th className="px-4 py-2.5">Tabel</th>
+              <th className="px-4 py-2.5">ID Record</th>
             </tr>
           </thead>
           <tbody>
             {logs?.map((log) => (
-              <tr key={log.id} className="border-t" style={{ borderColor: "var(--color-border)" }}>
-                <td className="px-4 py-2 whitespace-nowrap">
+              <tr key={log.id} className="border-t border-slate-100">
+                <td className="px-4 py-3 whitespace-nowrap">
                   {new Date(log.created_at).toLocaleString("id-ID")}
                 </td>
-                <td className="px-4 py-2">{log.aksi}</td>
-                <td className="px-4 py-2">{log.tabel_terkait ?? "—"}</td>
-                <td className="px-4 py-2 text-xs text-gray-400">{log.record_id ?? "—"}</td>
+                <td className="px-4 py-3">{log.aksi}</td>
+                <td className="px-4 py-3">{log.tabel_terkait ?? "—"}</td>
+                <td className="px-4 py-3 text-xs text-slate-400">{log.record_id ?? "—"}</td>
               </tr>
             ))}
             {!logs?.length && (
               <tr>
-                <td colSpan={4} className="px-4 py-6 text-center text-gray-400">
+                <td colSpan={4} className="px-4 py-6 text-center text-slate-400">
                   Belum ada aksi tercatat.
                 </td>
               </tr>

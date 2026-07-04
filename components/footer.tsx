@@ -3,7 +3,7 @@ export default function Footer() {
     <footer className="border-t border-slate-200 bg-white mt-20">
       <div className="max-w-6xl mx-auto px-6 py-10 grid gap-8 sm:grid-cols-3 text-sm">
         <div>
-          <p className="font-semibold text-slate-900">SIBUMBALUMBA</p>
+          <p className="font-semibold text-slate-900">SIBUMBALAMUBA</p>
           <p className="text-slate-500 mt-2 leading-relaxed">
             Sistem Informasi BUMD-BLUD Kota Batu. Dikelola oleh Bagian
             Perekonomian dan BPSDA Sekretariat Daerah Kota Batu.

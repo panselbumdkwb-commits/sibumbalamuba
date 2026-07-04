@@ -2,6 +2,7 @@ import { requireRole } from "@/lib/auth/rbac";
 import { createClient } from "@/lib/supabase/server";
 import VerifyBerkasButton from "./verify-berkas-button";
 import CancelPesertaButton from "./cancel-peserta-button";
+import PageHeader from "../_components/page-header";
 
 const STATUS_LABEL: Record<string, string> = {
   terdaftar: "Terdaftar",
@@ -16,7 +17,7 @@ const STATUS_LABEL: Record<string, string> = {
 const STATUS_FINAL = ["selesai", "ditolak", "mengundurkan_diri"];
 
 export default async function KelolaSeleksiPage() {
-  await requireRole(["panitia_seleksi", "super_admin"]);
+  await requireRole(["panitia_seleksi", "ketua_pansel", "super_admin"]);
 
   const supabase = await createClient();
   const { data: peserta } = await supabase
@@ -35,13 +36,12 @@ export default async function KelolaSeleksiPage() {
 
   return (
     <main className="p-6 max-w-5xl mx-auto flex flex-col gap-6">
-      <div>
-        <h1 className="text-xl font-semibold text-slate-900">Kelola Seleksi</h1>
-        <p className="text-sm text-slate-500 mt-1">
-          Verifikasi berkas administrasi peserta seleksi Direksi, Dewan
-          Pengawas, dan Komisaris.
-        </p>
-      </div>
+      <PageHeader
+        icon="📋"
+        color="bg-brand-50 text-brand-700"
+        title="Kelola Seleksi"
+        description="Verifikasi berkas administrasi peserta seleksi Direksi, Dewan Pengawas, dan Komisaris."
+      />
 
       <div className="flex flex-col gap-4">
         {peserta?.map((p) => {

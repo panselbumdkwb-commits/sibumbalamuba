@@ -1,6 +1,6 @@
 -- ============================================================
 -- TAHAP 12 — SUPABASE SCHEMA (DDL SQL)
--- SIBUMBALUMBA
+-- SIBUMBALAMUBA
 -- ============================================================
 -- Catatan: Jalankan sebagai migration terversi (supabase/migrations/).
 -- Skema ini adalah turunan langsung dari Tahap 6 (Database Schema Logis)

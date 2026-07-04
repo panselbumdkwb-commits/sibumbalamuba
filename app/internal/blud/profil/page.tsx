@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import EntityProfileForm from "../../_components/entity-profile-form";
 import EntityViewCard from "../../_components/entity-view-card";
+import PageHeader from "../../_components/page-header";
 
 export default async function BludProfilPage() {
   const profile = await getSessionProfile();
@@ -26,14 +27,16 @@ export default async function BludProfilPage() {
 
   return (
     <main className="p-6 max-w-3xl mx-auto flex flex-col gap-6">
-      <div>
-        <h1 className="text-xl font-semibold text-slate-900">Profil BLUD</h1>
-        <p className="text-sm text-slate-500 mt-1">
-          {canEdit
+      <PageHeader
+        icon="🏥"
+        color="bg-cyan-50 text-cyan-700"
+        title="Profil BLUD"
+        description={
+          canEdit
             ? "Perubahan di sini langsung tampil di halaman transparansi publik."
-            : "Anda memiliki akses lihat-saja untuk data ini."}
-        </p>
-      </div>
+            : "Anda memiliki akses lihat-saja untuk data ini."
+        }
+      />
 
       {bludList?.map((blud) =>
         canEdit ? (
