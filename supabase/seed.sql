@@ -14,11 +14,11 @@ insert into public.bumd (nama, jenis_usaha, status, profil_singkat) values
 on conflict do nothing;
 
 insert into public.blud (nama, jenis_layanan, status, profil_singkat) values
-  ('Puskesmas Batu', 'Pelayanan Kesehatan Dasar', 'aktif', 'BLUD Puskesmas Kecamatan Batu.'),
-  ('Puskesmas Beji', 'Pelayanan Kesehatan Dasar', 'aktif', 'BLUD Puskesmas Beji.'),
-  ('Puskesmas Bumiaji', 'Pelayanan Kesehatan Dasar', 'aktif', 'BLUD Puskesmas Kecamatan Bumiaji.'),
-  ('Puskesmas Junrejo', 'Pelayanan Kesehatan Dasar', 'aktif', 'BLUD Puskesmas Kecamatan Junrejo.'),
-  ('Puskesmas Sisir', 'Pelayanan Kesehatan Dasar', 'aktif', 'BLUD Puskesmas Sisir.')
+  ('UPT Puskesmas Batu', 'Pelayanan Kesehatan Dasar', 'aktif', 'BLUD UPT Puskesmas Kecamatan Batu.'),
+  ('UPT Puskesmas Beji', 'Pelayanan Kesehatan Dasar', 'aktif', 'BLUD UPT Puskesmas Beji.'),
+  ('UPT Puskesmas Bumiaji', 'Pelayanan Kesehatan Dasar', 'aktif', 'BLUD UPT Puskesmas Kecamatan Bumiaji.'),
+  ('UPT Puskesmas Junrejo', 'Pelayanan Kesehatan Dasar', 'aktif', 'BLUD UPT Puskesmas Kecamatan Junrejo.'),
+  ('UPT Puskesmas Sisir', 'Pelayanan Kesehatan Dasar', 'aktif', 'BLUD UPT Puskesmas Sisir.')
 on conflict do nothing;
 
 -- Bobot indikator dasar (contoh — sesuaikan dengan regulasi terbaru

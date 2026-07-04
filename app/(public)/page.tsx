@@ -1,4 +1,3 @@
-import Link from "next/link";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import { createClient } from "@/lib/supabase/server";
@@ -32,14 +31,6 @@ export default async function PublicLandingPage() {
             seleksi Direksi, Dewan Pengawas, dan Komisaris — akuntabel,
             aman, dan berpedoman pada regulasi yang berlaku.
           </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link href="/login/peserta" className="btn bg-white text-primary-900 hover:bg-primary-50">
-              Daftar Seleksi Direksi/Dewas
-            </Link>
-            <Link href="/login/internal" className="btn border border-white/30 text-white hover:bg-white/10">
-              Login Internal Pemda
-            </Link>
-          </div>
 
           <div className="mt-14 grid grid-cols-3 gap-4 max-w-lg mx-auto">
             <Stat value={String(totalEntitas)} label="Entitas Terdaftar" />
@@ -88,16 +79,12 @@ export default async function PublicLandingPage() {
             title="Seleksi Direksi, Dewan Pengawas &amp; Komisaris"
             desc="Pendaftaran terbuka mengikuti jadwal panitia seleksi. Seluruh tahapan — administrasi, psikotes, tes tertulis, uji kompetensi (UKK), presentasi, hingga wawancara — dicatat sistem dan dapat dipantau peserta secara mandiri."
           />
-          <div className="card p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <p className="text-sm text-slate-600 max-w-md">
-              Sudah punya akun peserta? Masuk untuk memantau status
-              pendaftaran Anda. Belum punya akun? Daftar dengan username dan
-              lengkapi berkas administrasi.
+          <div className="card p-6">
+            <p className="text-sm text-slate-600 max-w-lg">
+              Sudah punya akun peserta atau ingin mendaftar? Gunakan tombol{" "}
+              <span className="font-medium">Peserta Seleksi</span> di
+              bagian atas atau bawah halaman ini.
             </p>
-            <div className="flex gap-2 shrink-0">
-              <Link href="/login/peserta" className="btn-secondary">Masuk</Link>
-              <Link href="/daftar" className="btn-primary">Daftar</Link>
-            </div>
           </div>
         </section>
       </main>
