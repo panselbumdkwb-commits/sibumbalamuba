@@ -18,7 +18,8 @@ export type UserRole =
   | "admin_blud"
   | "panitia_seleksi"
   | "tim_ukk"
-  | "peserta";
+  | "peserta"
+  | "eksekutif";
 
 export type EntityType = "bumd" | "blud";
 export type JenisSeleksi = "direksi" | "dewas" | "komisaris" | "pegawai_blud";
@@ -29,7 +30,8 @@ export type StatusSeleksi =
   | "lolos_administrasi"
   | "penilaian"
   | "selesai"
-  | "ditolak";
+  | "ditolak"
+  | "mengundurkan_diri";
 export type TahapPenilaian =
   | "psikotes"
   | "tes_tulis"
@@ -413,11 +415,14 @@ export type Database = {
     };
 
     Views: {
-      v_status_penilaian_ukk: {
+      v_rekap_nilai_ukk: {
         Row: {
           peserta_id: string;
-          tahap_selesai: number;
-          total_tahap_diinput: number;
+          tahap: TahapPenilaian;
+          jumlah_penilai_final: number;
+          total_tim_ukk_aktif: number;
+          skor_rata_rata: number | null;
+          sudah_lengkap: boolean;
         };
         Relationships: [];
       };

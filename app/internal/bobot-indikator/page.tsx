@@ -2,7 +2,7 @@ import { requireRole } from "@/lib/auth/rbac";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function BobotIndikatorPage() {
-  await requireRole(["admin_bpsda", "super_admin"]);
+  await requireRole(["admin_bpsda", "super_admin", "eksekutif"]);
 
   const supabase = await createClient();
   const { data: bobotList } = await supabase

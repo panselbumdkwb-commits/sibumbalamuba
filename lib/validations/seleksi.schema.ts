@@ -16,3 +16,8 @@ export const assistedRegisterSchema = z.object({
   bumdId: z.string().uuid(),
   tokenUndangan: z.string().min(10),
 });
+
+export const batalkanPendaftaranSchema = z.object({
+  pesertaId: z.string().uuid(),
+  alasan: z.string().max(500).optional(),
+});

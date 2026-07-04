@@ -2,18 +2,22 @@ import { getSessionProfile } from "@/lib/auth/rbac";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import EntityProfileForm from "../../_components/entity-profile-form";
+import EntityViewCard from "../../_components/entity-view-card";
 
 export default async function BumdProfilPage() {
   const profile = await getSessionProfile();
   if (!profile) redirect("/login/internal");
-  if (!["admin_bumd", "admin_bpsda", "super_admin"].includes(profile.role)) {
+  if (!["admin_bumd", "admin_bpsda", "super_admin", "eksekutif"].includes(profile.role)) {
     redirect("/internal/dashboard");
   }
 
+  // admin_bpsda dan eksekutif kini LIHAT SAJA (read-only) — perubahan data
+  // BUMD hanya boleh dilakukan admin_bumd (entitasnya sendiri) atau
+  // super_admin, sesuai RLS "bumd_write_authorized" di migration 0007.
+  const canEdit = profile.role === "admin_bumd" || profile.role === "super_admin";
+
   const supabase = await createClient();
 
-  // admin_bumd hanya boleh mengelola entitasnya sendiri (RLS
-  // "bumd_write_authorized" memaksa ini juga di level database).
   const query = supabase.from("bumd").select("id, nama, jenis_usaha, status, profil_singkat");
   const { data: bumdList } =
     profile.role === "admin_bumd" && profile.entityId
@@ -25,13 +29,19 @@ export default async function BumdProfilPage() {
       <div>
         <h1 className="text-xl font-semibold text-slate-900">Profil BUMD</h1>
         <p className="text-sm text-slate-500 mt-1">
-          Perubahan di sini langsung tampil di halaman transparansi publik.
+          {canEdit
+            ? "Perubahan di sini langsung tampil di halaman transparansi publik."
+            : "Anda memiliki akses lihat-saja untuk data ini."}
         </p>
       </div>
 
-      {bumdList?.map((bumd) => (
-        <EntityProfileForm key={bumd.id} table="bumd" entity={bumd} subtitleField="jenis_usaha" />
-      ))}
+      {bumdList?.map((bumd) =>
+        canEdit ? (
+          <EntityProfileForm key={bumd.id} table="bumd" entity={bumd} subtitleField="jenis_usaha" />
+        ) : (
+          <EntityViewCard key={bumd.id} entity={bumd} subtitleField="jenis_usaha" />
+        )
+      )}
 
       {!bumdList?.length && (
         <p className="text-sm text-slate-400">

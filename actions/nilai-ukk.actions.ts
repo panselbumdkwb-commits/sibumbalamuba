@@ -34,7 +34,7 @@ export async function inputNilaiUkk(input: unknown) {
         skor: parsed.data.skor,
         tim_ukk_id: profile.id, // dipaksa = user yang login, tidak bisa dispoof dari client
       },
-      { onConflict: "peserta_id,tahap" }
+      { onConflict: "peserta_id,tahap,tim_ukk_id" }
     )
     .select()
     .single();
@@ -87,18 +87,19 @@ export async function submitNilaiFinal(input: unknown) {
 }
 
 /**
- * Untuk panitia_seleksi: HANYA lewat view agregat, tidak pernah
- * menyentuh tabel nilai_ukk mentah.
+ * Untuk panitia_seleksi/eksekutif: HANYA lewat view rekap
+ * (v_rekap_nilai_ukk), tidak pernah menyentuh tabel nilai_ukk mentah.
+ * Mengembalikan rekap SEMUA tahap untuk satu peserta (rata-rata dari
+ * seluruh tim_ukk yang sudah finalisasi, per tahap).
  */
 export async function getStatusAgregatUkk(pesertaId: string) {
-  await requireRole(["panitia_seleksi", "super_admin", "admin_bpsda"]);
+  await requireRole(["panitia_seleksi", "super_admin", "admin_bpsda", "eksekutif"]);
 
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from("v_status_penilaian_ukk")
+    .from("v_rekap_nilai_ukk")
     .select("*")
-    .eq("peserta_id", pesertaId)
-    .single();
+    .eq("peserta_id", pesertaId);
 
   if (error) {
     return { success: false as const, error: "Gagal mengambil status" };

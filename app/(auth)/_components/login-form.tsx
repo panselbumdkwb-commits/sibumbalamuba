@@ -16,6 +16,7 @@ const ALLOWED_ROLES: Record<Mode, UserRole[]> = {
     "admin_blud",
     "panitia_seleksi",
     "tim_ukk",
+    "eksekutif",
   ],
   peserta: ["peserta"],
 };

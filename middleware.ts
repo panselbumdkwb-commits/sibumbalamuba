@@ -18,6 +18,7 @@ const INTERNAL_ROLES = [
   "admin_blud",
   "panitia_seleksi",
   "tim_ukk",
+  "eksekutif",
 ];
 const PESERTA_ROLES = ["peserta"];
 
@@ -26,9 +27,10 @@ const ROLE_ROUTE_PREFIX: Record<string, string[]> = {
   "/internal/seleksi/dewas-komisaris/assisted-entry": ["super_admin"],
   "/internal/seleksi": ["panitia_seleksi", "super_admin"],
   "/internal/audit-log": ["super_admin"],
-  "/internal/bobot-indikator": ["admin_bpsda", "super_admin"],
-  "/internal/bumd": ["admin_bumd", "admin_bpsda", "super_admin"],
-  "/internal/blud": ["admin_blud", "admin_bpsda", "super_admin"],
+  "/internal/bobot-indikator": ["admin_bpsda", "super_admin", "eksekutif"],
+  "/internal/laporan": ["eksekutif", "super_admin"],
+  "/internal/bumd": ["admin_bumd", "admin_bpsda", "super_admin", "eksekutif"],
+  "/internal/blud": ["admin_blud", "admin_bpsda", "super_admin", "eksekutif"],
 };
 
 export async function middleware(request: NextRequest) {

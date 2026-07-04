@@ -31,6 +31,12 @@ Auth, RLS) + Vercel.
    - `supabase/migrations/0001_init_schema.sql`
    - `supabase/migrations/0002_auth_trigger_and_fixes.sql`
    - `supabase/migrations/0003_username_login.sql`
+   - `supabase/migrations/0004_rename_blud_upt.sql`
+   - `supabase/migrations/0005_fix_profiles_rls_recursion.sql`
+   - `supabase/migrations/0006_add_role_eksekutif_dan_status.sql`
+     **(jalankan ini SENDIRI, terpisah dari file lain — lihat catatan di
+     dalam file, ini batasan Postgres untuk enum baru)**
+   - `supabase/migrations/0007_rbac_readonly_dan_ukk_multipenilai.sql`
    - `supabase/seed.sql` (opsional, data contoh)
 3. **Project Settings > API** → salin `Project URL` dan `anon public key`.
 4. Buat akun `super_admin` pertama lewat **Authentication > Add User**,
@@ -139,27 +145,34 @@ implementasi database-nya.
 | Role | Lingkup | Tidak bisa |
 |---|---|---|
 | `super_admin` | Semua data & fungsi, satu-satunya yang bisa assisted-entry dan lihat audit log penuh | — |
-| `admin_bpsda` | Kelola semua BUMD/BLUD, bobot indikator, evaluasi | Assisted-entry, verifikasi berkas seleksi, input nilai UKK |
+| `admin_bpsda` | **Lihat saja** (read-only) semua BUMD/BLUD, evaluasi, bobot indikator, lintas entitas | Mengubah profil BUMD/BLUD, assisted-entry, verifikasi berkas seleksi, input nilai UKK |
 | `admin_bumd` | Kelola profil & data BUMD miliknya sendiri saja (`entity_id`) | Data BUMD lain, data BLUD, seleksi, nilai UKK |
 | `admin_blud` | Kelola profil & data BLUD miliknya sendiri saja | Data BLUD lain, data BUMD, seleksi, nilai UKK |
-| `panitia_seleksi` | Kelola administrasi seleksi, verifikasi berkas, lihat status agregat UKK (bukan nilai mentah) | **Nilai UKK mentah** (disengaja — pemisahan tugas), assisted-entry |
-| `tim_ukk` | Input & finalisasi nilai UKK miliknya sendiri | Nilai UKK milik tim lain, data administrasi seleksi, data BUMD/BLUD |
-| `peserta` | Data pendaftaran & hasil miliknya sendiri saja | Data peserta lain, semua data internal |
+| `panitia_seleksi` | Kelola administrasi seleksi, verifikasi berkas, **batalkan pendaftaran** (mis. peserta mengundurkan diri), lihat rekap UKK (bukan nilai mentah) | **Nilai UKK mentah per penilai** (disengaja — pemisahan tugas), assisted-entry |
+| `tim_ukk` | Input & finalisasi nilai UKK miliknya sendiri untuk **semua peserta di semua tahap** (psikotes, tes tulis, wawancara, presentasi) | Nilai UKK milik 4 anggota tim lain, data administrasi seleksi, data BUMD/BLUD |
+| `eksekutif` | **Lihat saja** ringkasan lintas entitas (BUMD, BLUD, evaluasi, status seleksi) untuk pimpinan (Asisten Perekonomian dan Pembangunan, Sekda) | Mengubah data apa pun, nilai UKK mentah, berkas individual peserta |
+| `peserta` | Data pendaftaran & hasil miliknya sendiri saja (nilai UKK yang tampil adalah **rata-rata dari 5 tim penilai**, bukan nilai mentah individual) | Data peserta lain, semua data internal |
 
 Pemisahan ini ditegakkan di **tiga lapisan sekaligus** (defense in depth):
 
-1. **RLS di Postgres** (`supabase/migrations/0001-0003`) — lapisan utama,
+1. **RLS di Postgres** (`supabase/migrations/0001-0007`) — lapisan utama,
    tidak bisa dilewati meskipun ada bug di kode aplikasi.
 2. **`requireRole()` / pengecekan role di server** (`lib/auth/rbac.ts`,
    tiap page dan server action) — lapisan kedua.
 3. **`middleware.ts`** — lapisan UX, mencegah render halaman yang tidak
    relevan dan memisahkan portal internal vs peserta.
 
-Poin krusial by design: `panitia_seleksi` **tidak pernah** bisa membaca
-nilai UKK mentah — hanya `tim_ukk` (pemilik baris), `super_admin`, dan
-`admin_bpsda` yang bisa, plus peserta bisa lihat nilai miliknya sendiri
-setelah difinalisasi. Ini mencegah panitia mempengaruhi penilai secara
-tidak sah.
+### Penilaian UKK oleh 5 tim penilai (direkap)
+
+Sejak migration `0007`, satu peserta di satu tahap bisa dinilai oleh
+**hingga 5 anggota tim_ukk secara independen** (`unique(peserta_id, tahap,
+tim_ukk_id)` — bukan lagi satu nilai per tahap). Nilai mentah tiap
+penilai **tidak pernah** terlihat oleh siapa pun selain penilai itu
+sendiri dan `super_admin`/`admin_bpsda` (untuk audit). Yang terlihat oleh
+`panitia_seleksi`, `eksekutif`, dan peserta yang bersangkutan **hanya
+rata-rata (`v_rekap_nilai_ukk`)**, dan hanya setelah seluruh tim_ukk aktif
+menyelesaikan penilaiannya (`sudah_lengkap = true`). Ini mencegah siapa
+pun mempengaruhi penilai berdasarkan nilai individu yang sudah masuk.
 
 ## 7. Akun & Keamanan Login
 

@@ -6,6 +6,7 @@ import {
   registerPesertaDireksiSchema,
   verifyBerkasSchema,
   assistedRegisterSchema,
+  batalkanPendaftaranSchema,
 } from "@/lib/validations/seleksi.schema";
 
 /**
@@ -104,4 +105,38 @@ export async function assistedRegisterPeserta(input: unknown) {
   // Trigger DB (trg_log_assisted_entry) sudah otomatis mencatat ke audit_log —
   // tidak perlu insert manual di sini, menghindari duplikasi log.
   return { success: true as const, data };
+}
+
+// Pembatalan pendaftaran (mis. peserta mengundurkan diri) — HANYA
+// panitia_seleksi/super_admin, sesuai RLS "peserta_update_panitia_administrasi".
+// Dicatat manual ke audit_log karena tidak ada trigger DB untuk update
+// status peserta_seleksi (beda dengan assisted-entry/nilai_ukk final yang
+// sudah punya trigger otomatis).
+export async function batalkanPendaftaran(input: unknown) {
+  const profile = await requireRole(["panitia_seleksi", "super_admin"]);
+
+  const parsed = batalkanPendaftaranSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false as const, error: "Input tidak valid" };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("peserta_seleksi")
+    .update({ status: "mengundurkan_diri" })
+    .eq("id", parsed.data.pesertaId);
+
+  if (error) {
+    return { success: false as const, error: "Gagal membatalkan pendaftaran" };
+  }
+
+  await supabase.from("audit_log").insert({
+    user_id: profile.id,
+    aksi: "batalkan_pendaftaran_seleksi",
+    tabel_terkait: "peserta_seleksi",
+    record_id: parsed.data.pesertaId,
+    detail: parsed.data.alasan ? { alasan: parsed.data.alasan } : null,
+  });
+
+  return { success: true as const };
 }

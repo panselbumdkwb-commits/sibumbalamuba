@@ -9,6 +9,7 @@ const STATUS_LABEL: Record<string, string> = {
   penilaian: "Tahap Penilaian",
   selesai: "Selesai",
   ditolak: "Tidak Lolos",
+  mengundurkan_diri: "Mengundurkan Diri",
 };
 
 const TAHAP_LABEL: Record<string, string> = {
@@ -34,12 +35,15 @@ export default async function PesertaDashboardPage() {
 
   const pesertaIds = pendaftaran?.map((p) => p.id) ?? [];
 
-  const [{ data: berkasList }, { data: nilaiList }] = await Promise.all([
+  const [{ data: berkasList }, { data: rekapList }] = await Promise.all([
     pesertaIds.length
       ? supabase.from("berkas").select("id, peserta_id, jenis_dokumen, status_verifikasi").in("peserta_id", pesertaIds)
       : Promise.resolve({ data: [] }),
     pesertaIds.length
-      ? supabase.from("nilai_ukk").select("peserta_id, tahap, skor, is_final").in("peserta_id", pesertaIds)
+      ? supabase
+          .from("v_rekap_nilai_ukk")
+          .select("peserta_id, tahap, skor_rata_rata, sudah_lengkap")
+          .in("peserta_id", pesertaIds)
       : Promise.resolve({ data: [] }),
   ]);
 
@@ -101,19 +105,22 @@ export default async function PesertaDashboardPage() {
 
           <div className="mt-4 border-t border-slate-100 pt-4">
             <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">
-              Hasil Penilaian (tampil setelah difinalisasi panitia)
+              Hasil Penilaian UKK (rata-rata seluruh tim penilai, tampil
+              setelah semua tim menyelesaikan penilaian)
             </p>
             <div className="flex flex-col gap-1.5">
-              {nilaiList
-                ?.filter((n) => n.peserta_id === p.id)
+              {rekapList
+                ?.filter((n) => n.peserta_id === p.id && n.sudah_lengkap)
                 .map((n) => (
                   <div key={n.tahap} className="flex items-center justify-between text-sm">
                     <span className="text-slate-600">{TAHAP_LABEL[n.tahap] ?? n.tahap}</span>
-                    <span className="font-medium text-slate-900">{n.skor}</span>
+                    <span className="font-medium text-slate-900">{n.skor_rata_rata}</span>
                   </div>
                 ))}
-              {!nilaiList?.some((n) => n.peserta_id === p.id) && (
-                <p className="text-sm text-slate-400">Belum ada nilai final yang dipublikasikan.</p>
+              {!rekapList?.some((n) => n.peserta_id === p.id && n.sudah_lengkap) && (
+                <p className="text-sm text-slate-400">
+                  Belum ada nilai yang selesai direkap dari seluruh tim penilai.
+                </p>
               )}
             </div>
           </div>

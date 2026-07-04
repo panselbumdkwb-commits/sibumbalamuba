@@ -1,6 +1,7 @@
 import { requireRole } from "@/lib/auth/rbac";
 import { createClient } from "@/lib/supabase/server";
 import VerifyBerkasButton from "./verify-berkas-button";
+import CancelPesertaButton from "./cancel-peserta-button";
 
 const STATUS_LABEL: Record<string, string> = {
   terdaftar: "Terdaftar",
@@ -9,7 +10,10 @@ const STATUS_LABEL: Record<string, string> = {
   penilaian: "Tahap Penilaian",
   selesai: "Selesai",
   ditolak: "Ditolak",
+  mengundurkan_diri: "Mengundurkan Diri",
 };
+
+const STATUS_FINAL = ["selesai", "ditolak", "mengundurkan_diri"];
 
 export default async function KelolaSeleksiPage() {
   await requireRole(["panitia_seleksi", "super_admin"]);
@@ -54,9 +58,12 @@ export default async function KelolaSeleksiPage() {
                     {new Date(p.created_at).toLocaleDateString("id-ID")}
                   </p>
                 </div>
-                <span className="badge bg-primary-50 text-primary-700">
-                  {STATUS_LABEL[p.status] ?? p.status}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="badge bg-primary-50 text-primary-700">
+                    {STATUS_LABEL[p.status] ?? p.status}
+                  </span>
+                  {!STATUS_FINAL.includes(p.status) && <CancelPesertaButton pesertaId={p.id} />}
+                </div>
               </div>
 
               {berkasPeserta.length > 0 && (

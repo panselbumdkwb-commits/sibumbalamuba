@@ -11,15 +11,21 @@ type MenuItem = {
 
 const MENU: MenuItem[] = [
   {
+    href: "/internal/laporan",
+    label: "Laporan Ringkas Pimpinan",
+    description: "Ringkasan BUMD, BLUD, evaluasi, dan seleksi lintas entitas (lihat saja).",
+    roles: ["eksekutif", "super_admin"],
+  },
+  {
     href: "/internal/bumd/profil",
     label: "Profil BUMD",
-    description: "Kelola data dan profil BUMD (skop sesuai entitas Anda).",
+    description: "Kelola data BUMD (admin_bumd: entitas sendiri) atau lihat saja (admin_bpsda).",
     roles: ["admin_bumd", "admin_bpsda", "super_admin"],
   },
   {
     href: "/internal/blud/profil",
     label: "Profil BLUD",
-    description: "Kelola data dan profil BLUD (skop sesuai entitas Anda).",
+    description: "Kelola data BLUD (admin_blud: entitas sendiri) atau lihat saja (admin_bpsda).",
     roles: ["admin_blud", "admin_bpsda", "super_admin"],
   },
   {
@@ -31,7 +37,7 @@ const MENU: MenuItem[] = [
   {
     href: "/internal/seleksi",
     label: "Kelola Seleksi",
-    description: "Verifikasi berkas administrasi peserta seleksi.",
+    description: "Verifikasi berkas administrasi & batalkan pendaftaran peserta.",
     roles: ["panitia_seleksi", "super_admin"],
   },
   {
@@ -43,7 +49,7 @@ const MENU: MenuItem[] = [
   {
     href: "/internal/seleksi/penilaian-ukk",
     label: "Penilaian UKK",
-    description: "Input dan finalisasi nilai Uji Kompetensi Kerja peserta.",
+    description: "Input dan finalisasi nilai Uji Kompetensi Kerja peserta (nilai Anda sendiri).",
     roles: ["tim_ukk", "super_admin"],
   },
   {
@@ -62,6 +68,7 @@ const ROLE_LABEL: Record<UserRole, string> = {
   panitia_seleksi: "Panitia Seleksi",
   tim_ukk: "Tim Penilai UKK",
   peserta: "Peserta",
+  eksekutif: "Pimpinan (Eksekutif)",
 };
 
 export default async function InternalDashboardPage() {
