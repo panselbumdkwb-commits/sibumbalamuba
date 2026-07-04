@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import EntityLogo from "@/components/entity-logo";
 
 type Entity = {
   id: string;
@@ -51,6 +52,13 @@ export default function EntityProfileForm({
 
   return (
     <form onSubmit={handleSave} className="card p-5 flex flex-col gap-4">
+      <div className="flex items-center gap-3">
+        <EntityLogo nama={entity.nama} />
+        <p className="text-sm text-slate-500">
+          Logo ditampilkan otomatis berdasarkan nama entitas yang cocok.
+        </p>
+      </div>
+
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
           <label className="label">Nama</label>

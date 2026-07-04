@@ -3,8 +3,9 @@
 @tailwind utilities;
 
 :root {
-  --color-primary: #1e3a8a;
-  --color-primary-strong: #172554;
+  --color-primary: #0c4a6e;
+  --color-primary-strong: #082f49;
+  --color-brand: #ea580c;
   --color-accent: #059669;
   --color-surface: #ffffff;
   --color-surface-muted: #f8fafc;
@@ -44,6 +45,9 @@ body {
   }
   .btn-primary {
     @apply btn bg-primary-800 text-white hover:bg-primary-900 active:scale-[0.98] shadow-sm;
+  }
+  .btn-brand {
+    @apply btn bg-brand-600 text-white hover:bg-brand-700 active:scale-[0.98] shadow-sm;
   }
   .btn-secondary {
     @apply btn bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 active:scale-[0.98];

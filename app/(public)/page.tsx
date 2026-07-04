@@ -1,5 +1,6 @@
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
+import EntityLogo from "@/components/entity-logo";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function PublicLandingPage() {
@@ -20,7 +21,7 @@ export default async function PublicLandingPage() {
       <section className="relative overflow-hidden bg-gradient-to-b from-primary-950 via-primary-900 to-primary-800 text-white">
         <div className="absolute inset-0 opacity-[0.07] bg-[radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] [background-size:24px_24px]" />
         <div className="relative max-w-6xl mx-auto px-6 py-20 sm:py-28 text-center">
-          <span className="badge bg-white/10 text-white/80 border border-white/20 mb-5">
+          <span className="badge bg-brand-500/15 text-brand-300 border border-brand-400/30 mb-5">
             Portal Resmi Pemerintah Kota Batu
           </span>
           <h1 className="text-3xl sm:text-5xl font-bold tracking-tight max-w-3xl mx-auto leading-tight">
@@ -97,7 +98,7 @@ export default async function PublicLandingPage() {
 function Stat({ value, label }: { value: string; label: string }) {
   return (
     <div className="rounded-xl bg-white/10 border border-white/10 py-3">
-      <p className="text-xl font-bold">{value}</p>
+      <p className="text-xl font-bold text-brand-300">{value}</p>
       <p className="text-[11px] text-primary-100/70 mt-0.5">{label}</p>
     </div>
   );
@@ -106,7 +107,7 @@ function Stat({ value, label }: { value: string; label: string }) {
 function SectionHeader({ eyebrow, title, desc }: { eyebrow: string; title: string; desc: string }) {
   return (
     <div className="mb-8 max-w-2xl">
-      <span className="text-xs font-medium text-primary-700 uppercase tracking-wide">{eyebrow}</span>
+      <span className="text-xs font-semibold text-brand-600 uppercase tracking-wide">{eyebrow}</span>
       <h2 className="text-2xl font-semibold text-slate-900 mt-1">{title}</h2>
       <p className="text-sm text-slate-500 mt-2 leading-relaxed">{desc}</p>
     </div>
@@ -130,19 +131,24 @@ function EntityGrid({
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {items.map((item) => (
         <div key={item.id} className="card p-5 hover:shadow-card-hover transition-shadow">
-          <div className="flex items-start justify-between gap-3">
-            <p className="font-medium text-slate-900">{item.nama}</p>
-            <span
-              className={`badge shrink-0 ${
-                item.status === "aktif"
-                  ? "bg-accent-50 text-accent-700"
-                  : "bg-slate-100 text-slate-500"
-              }`}
-            >
-              {item.status}
-            </span>
+          <div className="flex items-start gap-3">
+            <EntityLogo nama={item.nama} />
+            <div className="flex-1 min-w-0">
+              <div className="flex items-start justify-between gap-2">
+                <p className="font-medium text-slate-900 truncate">{item.nama}</p>
+                <span
+                  className={`badge shrink-0 ${
+                    item.status === "aktif"
+                      ? "bg-accent-50 text-accent-700"
+                      : "bg-slate-100 text-slate-500"
+                  }`}
+                >
+                  {item.status}
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 mt-1">{item[subtitleKey]}</p>
+            </div>
           </div>
-          <p className="text-xs text-slate-500 mt-1.5">{item[subtitleKey]}</p>
         </div>
       ))}
     </div>
