@@ -19,6 +19,7 @@ export default function DaftarPage() {
     confirmPassword: "",
   });
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -70,12 +71,17 @@ export default function DaftarPage() {
     setLoading(false);
 
     if (signUpError) {
-      if (signUpError.message.toLowerCase().includes("already registered")) {
+      const m = signUpError.message.toLowerCase();
+      if (m.includes("already registered")) {
         setError("Email ini sudah terdaftar. Silakan masuk atau gunakan email lain.");
-      } else if (signUpError.message.toLowerCase().includes("username")) {
+      } else if (m.includes("username")) {
         setError("Username sudah digunakan orang lain. Coba username lain.");
+      } else if (m.includes("captcha")) {
+        setError(
+          "Verifikasi keamanan (captcha) gagal diproses. Pastikan NEXT_PUBLIC_TURNSTILE_SITE_KEY dan secret key di Supabase sudah dikonfigurasi dengan benar."
+        );
       } else {
-        setError("Pendaftaran gagal. Periksa kembali data Anda.");
+        setError(`Pendaftaran gagal: ${signUpError.message}`);
       }
       return;
     }
@@ -162,22 +168,33 @@ export default function DaftarPage() {
 
         <div>
           <label className="label" htmlFor="password">Kata sandi</label>
-          <input
-            id="password"
-            type="password"
-            required
-            autoComplete="new-password"
-            className="input"
-            value={form.password}
-            onChange={(e) => update("password", e.target.value)}
-          />
+          <div className="relative">
+            <input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              required
+              autoComplete="new-password"
+              className="input pr-16"
+              value={form.password}
+              onChange={(e) => update("password", e.target.value)}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              className="absolute inset-y-0 right-0 px-3 text-xs font-medium text-slate-500 hover:text-primary-700"
+              tabIndex={-1}
+            >
+              {showPassword ? "Sembunyikan" : "Tampilkan"}
+            </button>
+          </div>
+          <p className="text-xs text-slate-400 mt-1">Minimal 8 karakter.</p>
         </div>
 
         <div>
           <label className="label" htmlFor="confirmPassword">Konfirmasi kata sandi</label>
           <input
             id="confirmPassword"
-            type="password"
+            type={showPassword ? "text" : "password"}
             required
             autoComplete="new-password"
             className="input"

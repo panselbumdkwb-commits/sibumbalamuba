@@ -36,6 +36,7 @@ export default function LoginForm({ mode }: { mode: Mode }) {
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -54,17 +55,28 @@ export default function LoginForm({ mode }: { mode: Mode }) {
     setLoading(true);
     const supabase = createClient();
 
-    // 1) Resolve username -> email lewat RPC (satu-satunya kolom yang
-    //    dikembalikan adalah email; tidak membedakan pesan error supaya
-    //    tidak membocorkan username mana yang terdaftar).
+    // 1) Resolve username -> email lewat RPC.
     const { data: email, error: rpcError } = await supabase.rpc(
       "get_email_by_username",
       { p_username: username.trim() }
     );
 
-    if (rpcError || !email) {
+    if (rpcError) {
+      // RPC gagal total (bukan sekadar "username tidak ada") — biasanya
+      // berarti migration 0003_username_login.sql belum dijalankan di
+      // project Supabase, sehingga fungsi get_email_by_username belum ada.
       setLoading(false);
-      setError("Username atau kata sandi salah.");
+      setError(
+        `Gagal memproses login (${rpcError.message}). Kemungkinan migration database belum lengkap dijalankan — cek supabase/migrations/0003_username_login.sql.`
+      );
+      return;
+    }
+
+    if (!email) {
+      setLoading(false);
+      setError(
+        "Username tidak ditemukan. Periksa kembali penulisan username (huruf besar/kecil tidak masalah, tapi pastikan tidak ada spasi tersembunyi), atau pastikan kolom username pada baris profil akun ini sudah terisi di tabel profiles."
+      );
       return;
     }
 
@@ -75,21 +87,35 @@ export default function LoginForm({ mode }: { mode: Mode }) {
       options: captchaToken ? { captchaToken } : undefined,
     });
 
-    if (authError || !authData.user) {
+    if (authError) {
       setLoading(false);
-      setError("Username atau kata sandi salah.");
+      setError(describeAuthError(authError.message));
       return;
     }
 
-    // 3) Pastikan role akun cocok dengan portal yang dipakai — mencegah
-    //    peserta login lewat portal internal atau sebaliknya.
-    const { data: profile } = await supabase
+    if (!authData.user) {
+      setLoading(false);
+      setError("Login gagal karena sebab tidak diketahui. Coba lagi.");
+      return;
+    }
+
+    // 3) Pastikan role akun cocok dengan portal yang dipakai.
+    const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("role, is_active")
       .eq("id", authData.user.id)
       .single();
 
-    if (!profile || !profile.is_active) {
+    if (profileError || !profile) {
+      await supabase.auth.signOut();
+      setLoading(false);
+      setError(
+        "Akun berhasil diautentikasi tetapi profil tidak ditemukan di tabel profiles. Ini biasanya berarti trigger handle_new_user belum aktif saat akun ini dibuat — tambahkan baris profil secara manual di Table Editor, atau buat ulang user setelah migration 0002/0003 dijalankan."
+      );
+      return;
+    }
+
+    if (!profile.is_active) {
       await supabase.auth.signOut();
       setLoading(false);
       setError("Akun tidak aktif. Hubungi administrator.");
@@ -125,15 +151,25 @@ export default function LoginForm({ mode }: { mode: Mode }) {
 
       <div>
         <label className="label" htmlFor="password">Kata sandi</label>
-        <input
-          id="password"
-          type="password"
-          required
-          autoComplete="current-password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="input"
-        />
+        <div className="relative">
+          <input
+            id="password"
+            type={showPassword ? "text" : "password"}
+            required
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="input pr-16"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword((v) => !v)}
+            className="absolute inset-y-0 right-0 px-3 text-xs font-medium text-slate-500 hover:text-primary-700"
+            tabIndex={-1}
+          >
+            {showPassword ? "Sembunyikan" : "Tampilkan"}
+          </button>
+        </div>
       </div>
 
       <Turnstile onVerify={setCaptchaToken} onExpire={() => setCaptchaToken(null)} />
@@ -149,4 +185,19 @@ export default function LoginForm({ mode }: { mode: Mode }) {
       </button>
     </form>
   );
+}
+
+/** Menerjemahkan pesan error Supabase Auth ke Bahasa Indonesia yang lebih jelas. */
+function describeAuthError(message: string): string {
+  const m = message.toLowerCase();
+  if (m.includes("invalid login credentials")) {
+    return "Kata sandi salah untuk username tersebut. Periksa kembali penulisan kata sandi (gunakan tombol \"Tampilkan\" untuk memastikan).";
+  }
+  if (m.includes("email not confirmed")) {
+    return "Akun ini belum dikonfirmasi. Jika dibuat lewat Supabase Dashboard, pastikan opsi \"Auto Confirm User\" dicentang saat membuat user, atau konfirmasi manual lewat Authentication > Users.";
+  }
+  if (m.includes("captcha")) {
+    return "Verifikasi keamanan (captcha) gagal diproses. Pastikan NEXT_PUBLIC_TURNSTILE_SITE_KEY di Vercel dan secret key di Supabase Authentication > Attack Protection sudah cocok dan project sudah di-redeploy.";
+  }
+  return `Login gagal: ${message}`;
 }
