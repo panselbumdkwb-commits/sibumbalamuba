@@ -37,6 +37,7 @@ Auth, RLS) + Vercel.
      **(jalankan ini SENDIRI, terpisah dari file lain — lihat catatan di
      dalam file, ini batasan Postgres untuk enum baru)**
    - `supabase/migrations/0007_rbac_readonly_dan_ukk_multipenilai.sql`
+   - `supabase/migrations/0008_ganti_view_rekap_jadi_fungsi.sql`
    - `supabase/seed.sql` (opsional, data contoh)
 3. **Project Settings > API** → salin `Project URL` dan `anon public key`.
 4. Buat akun `super_admin` pertama lewat **Authentication > Add User**,
@@ -174,13 +175,47 @@ rata-rata (`v_rekap_nilai_ukk`)**, dan hanya setelah seluruh tim_ukk aktif
 menyelesaikan penilaiannya (`sudah_lengkap = true`). Ini mencegah siapa
 pun mempengaruhi penilai berdasarkan nilai individu yang sudah masuk.
 
-## 7. Akun & Keamanan Login
+## 7. Kelola Akun Pengguna (Kelola Akun)
 
-- Admin bebas menentukan username/password awal saat membuat akun baru.
+`super_admin` sekarang bisa membuat akun internal baru **langsung dari
+aplikasi** (`/internal/kelola-akun`), tidak perlu lagi lewat Supabase
+Dashboard + SQL Editor secara manual:
+
+- Buat akun baru: isi nama, username, email, password awal, pilih role
+  (termasuk pilih entitas BUMD/BLUD untuk role `admin_bumd`/`admin_blud`)
+- Reset password akun mana pun
+- Aktifkan/nonaktifkan akun
+
+**Wajib diisi agar fitur ini berfungsi**: `SUPABASE_SERVICE_ROLE_KEY` di
+environment variables (lihat `.env.example`) — ambil dari **Supabase
+Dashboard > Project Settings > API > service_role key** (bukan anon key).
+Variabel ini **rahasia**, jangan pernah diberi prefix `NEXT_PUBLIC_`, dan
+hanya dipakai di `lib/supabase/admin.ts` yang diberi pengaman `import
+"server-only"` supaya build akan gagal kalau sampai ter-bundle ke kode
+browser.
+
+Contoh akun yang bisa dibuat lewat fitur ini:
+
+| Username (contoh) | Role | Catatan |
+|---|---|---|
+| `kabag_bpsda` | `admin_bpsda` | Lihat saja, lintas entitas |
+| `admin_asisten` | `eksekutif` | Asisten Perekonomian dan Pembangunan |
+| `admin_sekda` | `eksekutif` | Sekretaris Daerah |
+| `ketua_pansel` | `panitia_seleksi` | Ketua panitia seleksi |
+| `penilai_ukk01` … `penilai_ukk05` | `tim_ukk` | 5 akun terpisah, satu per anggota tim penilai |
+| (satu per entitas) | `admin_bumd` | Perlu 1 akun untuk Perumdam Among Tirto, 1 untuk PT. Batu Wisata Resource |
+| (satu per entitas) | `admin_blud` | Perlu 1 akun untuk tiap UPT Puskesmas (5 akun) |
+
+> **Catatan**: `ketua_pansel` di atas dibuat dengan role `panitia_seleksi`
+> yang sama dengan anggota panitia lain — sistem saat ini belum
+> membedakan hak akses "ketua" vs "anggota" panitia. Kalau ketua panitia
+> perlu hak tambahan (mis. satu-satunya yang boleh membatalkan
+> pendaftaran, atau approval final), beri tahu saya supaya dibuatkan role
+> terpisah.
+
+## 8. Akun & Keamanan Login
+
 - Setiap pemilik akun bisa mengganti password sendiri kapan saja.
-- Admin bisa reset password akun siapa pun yang lupa (lewat Supabase
-  Dashboard > Authentication, atau bangun halaman admin khusus untuk ini
-  sebagai langkah lanjutan).
 - Verifikasi Turnstile wajib diselesaikan sebelum login/registrasi
   diproses (jika `NEXT_PUBLIC_TURNSTILE_SITE_KEY` diisi).
 - Username unik, format 4–32 karakter (huruf/angka/underscore/titik),
@@ -188,7 +223,7 @@ pun mempengaruhi penilai berdasarkan nilai individu yang sudah masuk.
   (`constraint username_format`) — validasi ganda supaya tidak bisa
   dilewati lewat panggilan API langsung.
 
-## 8. Dasar Regulasi
+## 9. Dasar Regulasi
 
 - **PP No. 54 Tahun 2017** — Badan Usaha Milik Daerah
 - **Permendagri No. 37 Tahun 2018** — Pengelolaan BUMD
@@ -201,17 +236,17 @@ transparansi ke masyarakat. Sesuaikan/lengkapi dengan Peraturan Wali
 Kota Batu terbaru yang mengatur seleksi Direksi/Dewas/Komisaris BUMD
 setempat.
 
-## 9. Langkah Selanjutnya
+## 10. Langkah Selanjutnya
 
 1. Modul Monev BUMD/BLUD performance-based (8 tabel baru + halaman
    `/internal/monev/*`) — lihat catatan desain di dokumen tahap terkait.
-2. Halaman admin untuk reset password & kelola akun (`/internal/akun`),
-   khusus `super_admin`.
-3. Halaman edit detail seleksi (`/internal/seleksi/[id]`) dengan riwayat
+2. Halaman edit detail seleksi (`/internal/seleksi/[id]`) dengan riwayat
    tahapan lengkap.
-4. Form pendaftaran mandiri peserta Direksi (upload berkas) yang
+3. Form pendaftaran mandiri peserta Direksi (upload berkas) yang
    memanggil `registerPesertaDireksi()` — sudah siap di
    `actions/seleksi.actions.ts`.
-5. Uji integrasi RLS terhadap project Supabase staging sebelum produksi.
-6. Review keamanan oleh pihak kedua (four-eyes principle) untuk modul
+4. Uji integrasi RLS terhadap project Supabase staging sebelum produksi.
+5. Review keamanan oleh pihak kedua (four-eyes principle) untuk modul
    assisted-entry dan penilaian UKK, mengingat sensitivitasnya.
+6. Pertimbangkan role terpisah untuk "ketua panitia" vs anggota biasa
+   jika ada hak akses yang perlu dibedakan (lihat catatan di bagian 7).

@@ -414,24 +414,23 @@ export type Database = {
       };
     };
 
-    Views: {
-      v_rekap_nilai_ukk: {
-        Row: {
+    Views: Record<string, never>;
+
+    Functions: {
+      get_email_by_username: {
+        Args: { p_username: string };
+        Returns: string | null;
+      };
+      get_rekap_nilai_ukk: {
+        Args: Record<string, never>;
+        Returns: {
           peserta_id: string;
           tahap: TahapPenilaian;
           jumlah_penilai_final: number;
           total_tim_ukk_aktif: number;
           skor_rata_rata: number | null;
           sudah_lengkap: boolean;
-        };
-        Relationships: [];
-      };
-    };
-
-    Functions: {
-      get_email_by_username: {
-        Args: { p_username: string };
-        Returns: string | null;
+        }[];
       };
     };
     Enums: {

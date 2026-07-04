@@ -53,6 +53,12 @@ const MENU: MenuItem[] = [
     roles: ["tim_ukk", "super_admin"],
   },
   {
+    href: "/internal/kelola-akun",
+    label: "Kelola Akun Pengguna",
+    description: "Buat akun baru, reset password, atau nonaktifkan akun internal.",
+    roles: ["super_admin"],
+  },
+  {
     href: "/internal/audit-log",
     label: "Audit Log",
     description: "Riwayat aksi sensitif seluruh pengguna sistem.",

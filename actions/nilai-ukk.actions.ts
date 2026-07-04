@@ -96,14 +96,11 @@ export async function getStatusAgregatUkk(pesertaId: string) {
   await requireRole(["panitia_seleksi", "super_admin", "admin_bpsda", "eksekutif"]);
 
   const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("v_rekap_nilai_ukk")
-    .select("*")
-    .eq("peserta_id", pesertaId);
+  const { data, error } = await supabase.rpc("get_rekap_nilai_ukk");
 
   if (error) {
     return { success: false as const, error: "Gagal mengambil status" };
   }
 
-  return { success: true as const, data };
+  return { success: true as const, data: data?.filter((d) => d.peserta_id === pesertaId) };
 }

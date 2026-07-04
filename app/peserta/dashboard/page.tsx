@@ -35,17 +35,14 @@ export default async function PesertaDashboardPage() {
 
   const pesertaIds = pendaftaran?.map((p) => p.id) ?? [];
 
-  const [{ data: berkasList }, { data: rekapList }] = await Promise.all([
+  const [{ data: berkasList }, { data: rekapAll }] = await Promise.all([
     pesertaIds.length
       ? supabase.from("berkas").select("id, peserta_id, jenis_dokumen, status_verifikasi").in("peserta_id", pesertaIds)
       : Promise.resolve({ data: [] }),
-    pesertaIds.length
-      ? supabase
-          .from("v_rekap_nilai_ukk")
-          .select("peserta_id, tahap, skor_rata_rata, sudah_lengkap")
-          .in("peserta_id", pesertaIds)
-      : Promise.resolve({ data: [] }),
+    pesertaIds.length ? supabase.rpc("get_rekap_nilai_ukk") : Promise.resolve({ data: [] }),
   ]);
+
+  const rekapList = rekapAll?.filter((r) => pesertaIds.includes(r.peserta_id));
 
   return (
     <main className="max-w-3xl mx-auto p-6 flex flex-col gap-6">
