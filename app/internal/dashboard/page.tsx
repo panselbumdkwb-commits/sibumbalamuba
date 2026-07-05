@@ -111,6 +111,15 @@ const MENU: MenuItem[] = [
 
   // ------------------------------------------------------- Data Seleksi
   {
+    href: "/internal/seleksi/proses",
+    label: "Proses Seleksi (Checklist Tugas)",
+    description: "24 tugas baku Panitia Seleksi per siklus, sesuai matriks tugas & fungsi.",
+    roles: ["panitia_seleksi", "ketua_pansel", "eksekutif", "super_admin"],
+    icon: "🗂️",
+    color: "bg-brand-50 text-brand-700",
+    group: "Data Seleksi",
+  },
+  {
     href: "/internal/seleksi",
     label: "Kelola Seleksi",
     description: "Verifikasi berkas administrasi & batalkan pendaftaran peserta.",
