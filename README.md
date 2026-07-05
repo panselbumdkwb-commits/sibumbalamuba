@@ -30,8 +30,11 @@ Auth, RLS) + Vercel.
 - ✅ **Monev BUMD Berbasis Kinerja** — 4 halaman terintegrasi:
   Perencanaan Kinerja (RKAP + KPI/IKU), Monitoring Realisasi (lapor +
   verifikasi), Dashboard Kinerja (visual), Manajemen Risiko
-- ⏳ Modul Monev **BLUD** performance-based (skema serupa BUMD, belum
-  dibuat) — beri tahu saya kalau dibutuhkan juga
+- ✅ **Monev BLUD Berbasis Kinerja** — 4 halaman serupa BUMD tapi dengan
+  alur verifikasi lebih kaya (3-tingkat + analisis penyebab + rencana
+  tindak lanjut + bukti dukung), sesuai Permendagri 79/2018 & PPK-BLUD.
+  Skema kepatuhan, inovasi pelayanan, dan tindak lanjut rekomendasi audit
+  sudah tersedia di database, halaman UI-nya menyusul (lihat bagian 11)
 
 ## 1. Setup Supabase
 
@@ -51,6 +54,7 @@ Auth, RLS) + Vercel.
      **(jalankan ini SENDIRI, terpisah dari file lain — sama seperti 0006)**
    - `supabase/migrations/0010_wewenang_tandatangan_ketua_pansel.sql`
    - `supabase/migrations/0011_monev_bumd_performance_based.sql`
+   - `supabase/migrations/0012_monev_blud_performance_based.sql`
    - `supabase/seed.sql` (opsional, data contoh)
 3. **Project Settings > API** → salin `Project URL` dan `anon public key`.
 4. Buat akun `super_admin` pertama lewat **Authentication > Add User**,
@@ -123,6 +127,10 @@ Development → Deploy.
 | `/internal/laporan` | eksekutif, super_admin | Ringkasan lintas entitas (lihat saja) |
 | `/internal/bumd/profil` | admin_bumd (edit), admin_bpsda/eksekutif (lihat saja), super_admin | Profil BUMD |
 | `/internal/blud/profil` | admin_blud (edit), admin_bpsda/eksekutif (lihat saja), super_admin | Profil BLUD |
+| `/internal/blud/perencanaan` | admin_blud, admin_bpsda, eksekutif, super_admin | Renstra/RBA & target KPI/IKU |
+| `/internal/blud/monitoring` | admin_blud, admin_bpsda, eksekutif, super_admin | Lapor & verifikasi realisasi (3-tingkat) |
+| `/internal/blud/dashboard-kinerja` | admin_blud, admin_bpsda, eksekutif, super_admin | Visual target vs realisasi |
+| `/internal/blud/risiko` | admin_blud, admin_bpsda, eksekutif, super_admin | Registrasi risiko pelayanan |
 | `/internal/bumd/perencanaan` | admin_bumd, admin_bpsda, eksekutif, super_admin | RKAP & target KPI/IKU |
 | `/internal/bumd/monitoring` | admin_bumd, admin_bpsda, eksekutif, super_admin | Lapor & verifikasi realisasi |
 | `/internal/bumd/dashboard-kinerja` | admin_bumd, admin_bpsda, eksekutif, super_admin | Visual target vs realisasi |
@@ -281,10 +289,33 @@ pola **indikator fleksibel** (tabel `bumd_kpi` + `bumd_realisasi`) —
 BPSDA bebas menambah indikator apa pun di kategori mana pun langsung
 dari halaman Perencanaan, tanpa perlu migration SQL baru.
 
-**Catatan cakupan**: modul ini baru untuk **BUMD**. Dokumen sumber yang
-Anda kirim khusus membahas matriks Monev BUMD — kalau BLUD (5 UPT
-Puskesmas) butuh modul serupa, beri tahu saya struktur datanya (kalau
-beda dari BUMD) supaya bisa dibuatkan migration `0012` yang sejenis.
+### Modul Monev BLUD (berbeda orientasi dari BUMD)
+
+BLUD berorientasi **pelayanan publik + kepatuhan PPK-BLUD** (Permendagri
+79/2018), bukan kinerja korporasi seperti BUMD. Halaman:
+`/internal/blud/perencanaan`, `/internal/blud/monitoring`,
+`/internal/blud/dashboard-kinerja`, `/internal/blud/risiko` — pola sama
+seperti BUMD (target oleh `admin_bpsda` selaku "OPD Pembina", realisasi
+oleh `admin_blud`), tapi dengan 3 perbedaan struktural:
+
+1. **Verifikasi 3-tingkat**: `belum_diverifikasi` / `perlu_perbaikan` /
+   `disetujui` — bukan cuma pending/terverifikasi/ditolak seperti BUMD,
+   supaya OPD Pembina bisa meminta perbaikan tanpa langsung menolak.
+2. **Setiap laporan realisasi wajib memuat** analisis penyebab deviasi,
+   rencana tindak lanjut, dan tautan bukti dukung — bukan cuma angka.
+3. **Periode granular sampai bulanan** (bukan cuma triwulan), lewat
+   kombinasi `jenis_periode` + `nomor_periode` supaya tidak perlu 12
+   nilai enum terpisah.
+
+Persentase capaian **dihitung otomatis lewat view** (`v_blud_capaian`),
+bukan disimpan manual — supaya tidak pernah tidak-sinkron dengan
+target/realisasi aslinya.
+
+**Skema siap, UI menyusul**: tabel `blud_kepatuhan` (kepatuhan PPK-BLUD),
+`blud_inovasi` (inovasi pelayanan — modul yang TIDAK ADA di BUMD), dan
+`blud_tindak_lanjut` (tindak lanjut rekomendasi audit/evaluasi) sudah
+lengkap dengan RLS di migration `0012`, tapi halaman frontend-nya belum
+dibuat — lihat bagian 11.
 
 ## 9. Akun & Keamanan Login
 
@@ -311,8 +342,11 @@ setempat.
 
 ## 11. Langkah Selanjutnya
 
-1. Modul Monev **BLUD** performance-based (skema serupa BUMD di
-   migration `0011`, tapi untuk 5 UPT Puskesmas — belum dibuat).
+1. Halaman UI untuk 3 tabel yang sudah ada skemanya tapi belum ada
+   halamannya: **Kepatuhan PPK-BLUD** (`blud_kepatuhan`), **Inovasi
+   Pelayanan** (`blud_inovasi`), **Tindak Lanjut Rekomendasi Audit**
+   (`blud_tindak_lanjut`). Bisa digabung jadi satu halaman "Tata Kelola
+   BLUD" atau dipisah — beri tahu preferensinya.
 2. Halaman edit detail seleksi (`/internal/seleksi/[id]`) dengan riwayat
    tahapan lengkap.
 3. Form pendaftaran mandiri peserta Direksi (upload berkas) yang

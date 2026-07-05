@@ -56,6 +56,23 @@ export type StatusTindakLanjut = "belum_ditangani" | "dalam_proses" | "selesai";
 export type JenisKepatuhan = "rkap" | "laporan_triwulan" | "laporan_tahunan" | "opini_auditor" | "perizinan";
 export type StatusKepatuhan = "tepat_waktu" | "terlambat" | "belum_disampaikan";
 
+export type StatusBludEnum = "penuh" | "bertahap";
+export type KategoriIkuBlud = "pelayanan" | "keuangan" | "tata_kelola" | "sdm" | "pengembangan";
+export type JenisPeriodeBlud = "bulanan" | "triwulanan" | "semester" | "tahunan";
+export type StatusVerifikasiBlud = "belum_diverifikasi" | "perlu_perbaikan" | "disetujui";
+export type KategoriRisikoBlud = "strategis" | "pelayanan" | "sdm" | "keuangan" | "teknologi_informasi" | "hukum";
+export type JenisKepatuhanBlud =
+  | "rba"
+  | "laporan_keuangan"
+  | "laporan_kinerja"
+  | "opini_auditor"
+  | "ppk_blud"
+  | "pengadaan"
+  | "perpajakan";
+export type KategoriInovasi = "digitalisasi" | "sistem_informasi" | "integrasi_layanan" | "simplifikasi_prosedur" | "lainnya";
+export type StatusInovasi = "direncanakan" | "berjalan" | "selesai";
+export type SumberRekomendasi = "audit_internal" | "audit_eksternal" | "evaluasi_bpsda" | "lainnya";
+
 export type Database = {
   public: {
     Tables: {
@@ -160,6 +177,12 @@ export type Database = {
           jenis_layanan: string | null;
           status: string;
           profil_singkat: string | null;
+          opd_induk: string | null;
+          dasar_hukum_pembentukan: string | null;
+          status_blud: StatusBludEnum | null;
+          tahun_penetapan: number | null;
+          alamat_kantor: string | null;
+          wilayah_pelayanan: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -169,12 +192,24 @@ export type Database = {
           jenis_layanan?: string | null;
           status?: string;
           profil_singkat?: string | null;
+          opd_induk?: string | null;
+          dasar_hukum_pembentukan?: string | null;
+          status_blud?: StatusBludEnum | null;
+          tahun_penetapan?: number | null;
+          alamat_kantor?: string | null;
+          wilayah_pelayanan?: string | null;
         };
         Update: Partial<{
           nama: string;
           jenis_layanan: string | null;
           status: string;
           profil_singkat: string | null;
+          opd_induk: string | null;
+          dasar_hukum_pembentukan: string | null;
+          status_blud: StatusBludEnum | null;
+          tahun_penetapan: number | null;
+          alamat_kantor: string | null;
+          wilayah_pelayanan: string | null;
         }>;
         Relationships: [];
       };
@@ -408,6 +443,284 @@ export type Database = {
           status: StatusKepatuhan;
           tanggal_pemenuhan: string | null;
           keterangan: string | null;
+        }>;
+        Relationships: [];
+      };
+
+      blud_pejabat_pengelola: {
+        Row: {
+          id: string;
+          blud_id: string;
+          nama: string;
+          jabatan: string;
+          sk_pengangkatan: string | null;
+          mulai_menjabat: string | null;
+          akhir_menjabat: string | null;
+          is_aktif: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          blud_id: string;
+          nama: string;
+          jabatan: string;
+          sk_pengangkatan?: string | null;
+          mulai_menjabat?: string | null;
+          akhir_menjabat?: string | null;
+          is_aktif?: boolean;
+        };
+        Update: Partial<{
+          nama: string;
+          jabatan: string;
+          sk_pengangkatan: string | null;
+          mulai_menjabat: string | null;
+          akhir_menjabat: string | null;
+          is_aktif: boolean;
+        }>;
+        Relationships: [];
+      };
+
+      blud_renstra_rba: {
+        Row: {
+          id: string;
+          blud_id: string;
+          tahun: number;
+          target_pendapatan: number | null;
+          target_belanja: number | null;
+          ringkasan_target_layanan: string | null;
+          file_path: string | null;
+          status: StatusDokumen;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          blud_id: string;
+          tahun: number;
+          target_pendapatan?: number | null;
+          target_belanja?: number | null;
+          ringkasan_target_layanan?: string | null;
+          file_path?: string | null;
+          status?: StatusDokumen;
+        };
+        Update: Partial<{
+          tahun: number;
+          target_pendapatan: number | null;
+          target_belanja: number | null;
+          ringkasan_target_layanan: string | null;
+          file_path: string | null;
+          status: StatusDokumen;
+        }>;
+        Relationships: [];
+      };
+
+      blud_kpi: {
+        Row: {
+          id: string;
+          blud_id: string;
+          tahun: number;
+          kategori: KategoriIkuBlud;
+          nama_indikator: string;
+          target_nilai: number;
+          satuan: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          blud_id: string;
+          tahun: number;
+          kategori: KategoriIkuBlud;
+          nama_indikator: string;
+          target_nilai: number;
+          satuan?: string | null;
+        };
+        Update: Partial<{
+          tahun: number;
+          kategori: KategoriIkuBlud;
+          nama_indikator: string;
+          target_nilai: number;
+          satuan: string | null;
+        }>;
+        Relationships: [];
+      };
+
+      blud_realisasi: {
+        Row: {
+          id: string;
+          blud_kpi_id: string;
+          jenis_periode: JenisPeriodeBlud;
+          nomor_periode: number;
+          tahun: number;
+          nilai_realisasi: number;
+          analisis_penyebab: string | null;
+          rencana_tindak_lanjut: string | null;
+          bukti_dukung_url: string | null;
+          status_verifikasi: StatusVerifikasiBlud;
+          catatan_verifikasi: string | null;
+          diinput_oleh: string | null;
+          diverifikasi_oleh: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          blud_kpi_id: string;
+          jenis_periode: JenisPeriodeBlud;
+          nomor_periode: number;
+          tahun: number;
+          nilai_realisasi: number;
+          analisis_penyebab?: string | null;
+          rencana_tindak_lanjut?: string | null;
+          bukti_dukung_url?: string | null;
+          status_verifikasi?: StatusVerifikasiBlud;
+          catatan_verifikasi?: string | null;
+          diinput_oleh?: string | null;
+          diverifikasi_oleh?: string | null;
+        };
+        Update: Partial<{
+          nilai_realisasi: number;
+          analisis_penyebab: string | null;
+          rencana_tindak_lanjut: string | null;
+          bukti_dukung_url: string | null;
+          status_verifikasi: StatusVerifikasiBlud;
+          catatan_verifikasi: string | null;
+          diverifikasi_oleh: string | null;
+        }>;
+        Relationships: [];
+      };
+
+      blud_risiko: {
+        Row: {
+          id: string;
+          blud_id: string;
+          tahun: number;
+          kategori: KategoriRisikoBlud;
+          deskripsi: string;
+          tingkat: TingkatRisiko;
+          mitigasi: string | null;
+          status: StatusTindakLanjut;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          blud_id: string;
+          tahun: number;
+          kategori: KategoriRisikoBlud;
+          deskripsi: string;
+          tingkat: TingkatRisiko;
+          mitigasi?: string | null;
+          status?: StatusTindakLanjut;
+        };
+        Update: Partial<{
+          tahun: number;
+          kategori: KategoriRisikoBlud;
+          deskripsi: string;
+          tingkat: TingkatRisiko;
+          mitigasi: string | null;
+          status: StatusTindakLanjut;
+        }>;
+        Relationships: [];
+      };
+
+      blud_kepatuhan: {
+        Row: {
+          id: string;
+          blud_id: string;
+          tahun: number;
+          jenis: JenisKepatuhanBlud;
+          status: StatusKepatuhan;
+          tanggal_pemenuhan: string | null;
+          keterangan: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          blud_id: string;
+          tahun: number;
+          jenis: JenisKepatuhanBlud;
+          status?: StatusKepatuhan;
+          tanggal_pemenuhan?: string | null;
+          keterangan?: string | null;
+        };
+        Update: Partial<{
+          tahun: number;
+          jenis: JenisKepatuhanBlud;
+          status: StatusKepatuhan;
+          tanggal_pemenuhan: string | null;
+          keterangan: string | null;
+        }>;
+        Relationships: [];
+      };
+
+      blud_inovasi: {
+        Row: {
+          id: string;
+          blud_id: string;
+          tahun: number;
+          nama_inovasi: string;
+          kategori: KategoriInovasi;
+          deskripsi: string | null;
+          manfaat: string | null;
+          status: StatusInovasi;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          blud_id: string;
+          tahun: number;
+          nama_inovasi: string;
+          kategori: KategoriInovasi;
+          deskripsi?: string | null;
+          manfaat?: string | null;
+          status?: StatusInovasi;
+        };
+        Update: Partial<{
+          tahun: number;
+          nama_inovasi: string;
+          kategori: KategoriInovasi;
+          deskripsi: string | null;
+          manfaat: string | null;
+          status: StatusInovasi;
+        }>;
+        Relationships: [];
+      };
+
+      blud_tindak_lanjut: {
+        Row: {
+          id: string;
+          blud_id: string;
+          tahun: number;
+          sumber: SumberRekomendasi;
+          rekomendasi: string;
+          rencana_tindak_lanjut: string | null;
+          persentase_penyelesaian: number;
+          bukti_dukung_url: string | null;
+          target_penyelesaian: string | null;
+          status: StatusTindakLanjut;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          blud_id: string;
+          tahun: number;
+          sumber: SumberRekomendasi;
+          rekomendasi: string;
+          rencana_tindak_lanjut?: string | null;
+          persentase_penyelesaian?: number;
+          bukti_dukung_url?: string | null;
+          target_penyelesaian?: string | null;
+          status?: StatusTindakLanjut;
+        };
+        Update: Partial<{
+          rekomendasi: string;
+          rencana_tindak_lanjut: string | null;
+          persentase_penyelesaian: number;
+          bukti_dukung_url: string | null;
+          target_penyelesaian: string | null;
+          status: StatusTindakLanjut;
         }>;
         Relationships: [];
       };
@@ -696,7 +1009,25 @@ export type Database = {
       };
     };
 
-    Views: Record<string, never>;
+    Views: {
+      v_blud_capaian: {
+        Row: {
+          realisasi_id: string;
+          blud_kpi_id: string;
+          blud_id: string;
+          tahun: number;
+          kategori: KategoriIkuBlud;
+          nama_indikator: string;
+          target_nilai: number;
+          jenis_periode: JenisPeriodeBlud;
+          nomor_periode: number;
+          nilai_realisasi: number;
+          status_verifikasi: StatusVerifikasiBlud;
+          persentase_capaian: number | null;
+        };
+        Relationships: [];
+      };
+    };
 
     Functions: {
       get_email_by_username: {
@@ -730,6 +1061,15 @@ export type Database = {
       status_tindak_lanjut: StatusTindakLanjut;
       jenis_kepatuhan: JenisKepatuhan;
       status_kepatuhan: StatusKepatuhan;
+      status_blud_enum: StatusBludEnum;
+      kategori_iku_blud: KategoriIkuBlud;
+      jenis_periode_blud: JenisPeriodeBlud;
+      status_verifikasi_blud: StatusVerifikasiBlud;
+      kategori_risiko_blud: KategoriRisikoBlud;
+      jenis_kepatuhan_blud: JenisKepatuhanBlud;
+      kategori_inovasi: KategoriInovasi;
+      status_inovasi: StatusInovasi;
+      sumber_rekomendasi: SumberRekomendasi;
     };
     CompositeTypes: Record<string, never>;
   };
