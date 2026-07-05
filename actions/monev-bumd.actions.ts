@@ -69,6 +69,9 @@ export async function laporRealisasi(input: unknown) {
       periode: parsed.data.periode,
       nilai_realisasi: parsed.data.nilaiRealisasi,
       catatan: parsed.data.catatan ?? null,
+      analisis_penyebab: parsed.data.analisisPenyebab ?? null,
+      rencana_tindak_lanjut: parsed.data.rencanaTindakLanjut ?? null,
+      bukti_dukung_url: parsed.data.buktiDukungUrl || null,
       diinput_oleh: profile.id,
       status_verifikasi: "pending",
     },
@@ -80,6 +83,8 @@ export async function laporRealisasi(input: unknown) {
 }
 
 // Verifikasi realisasi — fungsi pengawasan admin_bpsda/super_admin.
+// Sekarang 3 pilihan (bukan cuma terima/tolak) + wajib bisa menuliskan
+// analisa/tanggapan tertulis lewat catatan_verifikasi.
 export async function verifikasiRealisasi(input: unknown) {
   const profile = await requireRole(["admin_bpsda", "super_admin"]);
   const parsed = verifikasiRealisasiSchema.safeParse(input);
@@ -88,7 +93,11 @@ export async function verifikasiRealisasi(input: unknown) {
   const supabase = await createClient();
   const { error } = await supabase
     .from("bumd_realisasi")
-    .update({ status_verifikasi: parsed.data.status, diverifikasi_oleh: profile.id })
+    .update({
+      status_verifikasi: parsed.data.status,
+      catatan_verifikasi: parsed.data.catatanVerifikasi ?? null,
+      diverifikasi_oleh: profile.id,
+    })
     .eq("id", parsed.data.realisasiId);
 
   if (error) return { success: false as const, error: "Gagal memverifikasi" };

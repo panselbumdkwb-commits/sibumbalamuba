@@ -31,11 +31,15 @@ export const realisasiSchema = z.object({
   ]),
   nilaiRealisasi: z.coerce.number(),
   catatan: z.string().max(500).optional(),
+  analisisPenyebab: z.string().max(1000).optional(),
+  rencanaTindakLanjut: z.string().max(1000).optional(),
+  buktiDukungUrl: z.string().url().optional().or(z.literal("")),
 });
 
 export const verifikasiRealisasiSchema = z.object({
   realisasiId: z.string().uuid(),
-  status: z.enum(["terverifikasi", "ditolak"]),
+  status: z.enum(["perlu_perbaikan", "terverifikasi", "ditolak"]),
+  catatanVerifikasi: z.string().max(1000).optional(),
 });
 
 export const risikoSchema = z.object({

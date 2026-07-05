@@ -35,6 +35,13 @@ Auth, RLS) + Vercel.
   tindak lanjut + bukti dukung), sesuai Permendagri 79/2018 & PPK-BLUD.
   Skema kepatuhan, inovasi pelayanan, dan tindak lanjut rekomendasi audit
   sudah tersedia di database, halaman UI-nya menyusul (lihat bagian 11)
+- ✅ **Verifikasi Monev BUMD disamakan dengan BLUD** — `admin_bpsda`
+  sekarang bisa menyetujui, meminta perbaikan, ATAU menolak laporan
+  `admin_bumd` disertai tanggapan/analisa tertulis (bukan cuma klik
+  terima/tolak seperti sebelumnya)
+- ✅ **Dashboard Internal dikelompokkan**: Data BUMD, Data BLUD, Data
+  Seleksi, Laporan & Pengawasan, Administrasi Sistem — tiap kelompok
+  hanya tampil kalau ada menu yang relevan untuk role Anda
 
 ## 1. Setup Supabase
 
@@ -55,6 +62,7 @@ Auth, RLS) + Vercel.
    - `supabase/migrations/0010_wewenang_tandatangan_ketua_pansel.sql`
    - `supabase/migrations/0011_monev_bumd_performance_based.sql`
    - `supabase/migrations/0012_monev_blud_performance_based.sql`
+   - `supabase/migrations/0013_samakan_verifikasi_bumd_blud.sql`
    - `supabase/seed.sql` (opsional, data contoh)
 3. **Project Settings > API** → salin `Project URL` dan `anon public key`.
 4. Buat akun `super_admin` pertama lewat **Authentication > Add User**,

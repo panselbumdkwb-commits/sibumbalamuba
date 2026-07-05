@@ -17,6 +17,20 @@ const PERIODE_LABEL: Record<string, string> = {
   tahunan: "Tahunan",
 };
 
+const STATUS_LABEL: Record<string, string> = {
+  pending: "Menunggu Tanggapan",
+  perlu_perbaikan: "Perlu Perbaikan",
+  terverifikasi: "Terverifikasi",
+  ditolak: "Ditolak",
+};
+
+const STATUS_COLOR: Record<string, string> = {
+  pending: "bg-slate-100 text-slate-500",
+  perlu_perbaikan: "bg-amber-50 text-amber-700",
+  terverifikasi: "bg-accent-50 text-accent-700",
+  ditolak: "bg-red-50 text-red-600",
+};
+
 export default async function MonitoringBumdPage() {
   const profile = await getSessionProfile();
   if (!profile) redirect("/login/internal");
@@ -50,8 +64,8 @@ export default async function MonitoringBumdPage() {
       <PageHeader
         icon="📈"
         color="bg-emerald-50 text-emerald-700"
-        title="Monitoring Realisasi Kinerja"
-        description={`Lapor & verifikasi realisasi terhadap target KPI tahun ${TAHUN_INI}.`}
+        title="Monitoring Realisasi Kinerja BUMD"
+        description={`Lapor & tanggapi realisasi terhadap target KPI tahun ${TAHUN_INI}. Admin BPSDA bisa menyetujui, meminta perbaikan, atau menolak disertai analisa tertulis.`}
       />
 
       {bumdList?.map((bumd) => {
@@ -71,30 +85,41 @@ export default async function MonitoringBumdPage() {
                       (target {k.target_nilai} {k.satuan ?? ""})
                     </span>
                   </p>
-                  <div className="flex flex-col gap-1.5 mt-2">
+                  <div className="flex flex-col gap-3 mt-2">
                     {realisasi.map((r) => (
-                      <div key={r.id} className="flex items-center justify-between text-sm">
-                        <span className="text-slate-500">{PERIODE_LABEL[r.periode] ?? r.periode}</span>
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium text-slate-900">{r.nilai_realisasi}</span>
-                          {r.status_verifikasi === "pending" && canVerify ? (
-                            <VerifyRealisasiButton realisasiId={r.id} />
-                          ) : (
-                            <span
-                              className={`badge ${
-                                r.status_verifikasi === "terverifikasi"
-                                  ? "bg-accent-50 text-accent-700"
-                                  : r.status_verifikasi === "ditolak"
-                                  ? "bg-red-50 text-red-600"
-                                  : "bg-slate-100 text-slate-500"
-                              }`}
-                            >
-                              {r.status_verifikasi === "pending" ? "Menunggu" : r.status_verifikasi}
+                      <div key={r.id} className="bg-slate-50 rounded-lg p-3">
+                        <div className="flex items-center justify-between text-sm flex-wrap gap-2">
+                          <span className="text-slate-600">{PERIODE_LABEL[r.periode] ?? r.periode}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-slate-900">{r.nilai_realisasi}</span>
+                            <span className={`badge ${STATUS_COLOR[r.status_verifikasi] ?? "bg-slate-100 text-slate-500"}`}>
+                              {STATUS_LABEL[r.status_verifikasi] ?? r.status_verifikasi}
                             </span>
-                          )}
+                          </div>
                         </div>
+                        {r.analisis_penyebab && (
+                          <p className="text-xs text-slate-500 mt-1.5">
+                            <span className="font-medium">Analisis:</span> {r.analisis_penyebab}
+                          </p>
+                        )}
+                        {r.rencana_tindak_lanjut && (
+                          <p className="text-xs text-slate-500 mt-0.5">
+                            <span className="font-medium">Rencana tindak lanjut:</span> {r.rencana_tindak_lanjut}
+                          </p>
+                        )}
+                        {r.catatan_verifikasi && (
+                          <p className="text-xs text-amber-700 mt-1">
+                            <span className="font-medium">Tanggapan Admin BPSDA:</span> {r.catatan_verifikasi}
+                          </p>
+                        )}
+                        {canVerify && r.status_verifikasi !== "terverifikasi" && (
+                          <div className="mt-2">
+                            <VerifyRealisasiButton realisasiId={r.id} />
+                          </div>
+                        )}
                       </div>
                     ))}
+                    {!realisasi.length && <p className="text-xs text-slate-400">Belum ada laporan realisasi.</p>}
                   </div>
                   {canInput && <RealisasiForm bumdKpiId={k.id} />}
                 </div>

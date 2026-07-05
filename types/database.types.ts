@@ -359,6 +359,10 @@ export type Database = {
           periode: JenisPeriodeMonev;
           nilai_realisasi: number;
           catatan: string | null;
+          analisis_penyebab: string | null;
+          rencana_tindak_lanjut: string | null;
+          bukti_dukung_url: string | null;
+          catatan_verifikasi: string | null;
           status_verifikasi: string;
           diinput_oleh: string | null;
           diverifikasi_oleh: string | null;
@@ -370,6 +374,10 @@ export type Database = {
           periode: JenisPeriodeMonev;
           nilai_realisasi: number;
           catatan?: string | null;
+          analisis_penyebab?: string | null;
+          rencana_tindak_lanjut?: string | null;
+          bukti_dukung_url?: string | null;
+          catatan_verifikasi?: string | null;
           status_verifikasi?: string;
           diinput_oleh?: string | null;
           diverifikasi_oleh?: string | null;
@@ -377,6 +385,10 @@ export type Database = {
         Update: Partial<{
           nilai_realisasi: number;
           catatan: string | null;
+          analisis_penyebab: string | null;
+          rencana_tindak_lanjut: string | null;
+          bukti_dukung_url: string | null;
+          catatan_verifikasi: string | null;
           status_verifikasi: string;
           diverifikasi_oleh: string | null;
         }>;

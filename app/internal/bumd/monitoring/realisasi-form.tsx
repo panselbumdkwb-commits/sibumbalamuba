@@ -17,7 +17,13 @@ const PERIODE_OPTIONS = [
 export default function RealisasiForm({ bumdKpiId }: { bumdKpiId: string }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ periode: "triwulan_1", nilaiRealisasi: "", catatan: "" });
+  const [form, setForm] = useState({
+    periode: "triwulan_1",
+    nilaiRealisasi: "",
+    analisisPenyebab: "",
+    rencanaTindakLanjut: "",
+    buktiDukungUrl: "",
+  });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -29,14 +35,16 @@ export default function RealisasiForm({ bumdKpiId }: { bumdKpiId: string }) {
       bumdKpiId,
       periode: form.periode,
       nilaiRealisasi: form.nilaiRealisasi,
-      catatan: form.catatan || undefined,
+      analisisPenyebab: form.analisisPenyebab || undefined,
+      rencanaTindakLanjut: form.rencanaTindakLanjut || undefined,
+      buktiDukungUrl: form.buktiDukungUrl || undefined,
     });
     setLoading(false);
     if (!result.success) {
       setError(result.error);
       return;
     }
-    setForm({ periode: "triwulan_1", nilaiRealisasi: "", catatan: "" });
+    setForm({ periode: "triwulan_1", nilaiRealisasi: "", analisisPenyebab: "", rencanaTindakLanjut: "", buktiDukungUrl: "" });
     setOpen(false);
     router.refresh();
   }
@@ -50,37 +58,53 @@ export default function RealisasiForm({ bumdKpiId }: { bumdKpiId: string }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-2 flex flex-wrap items-end gap-2 bg-slate-50 rounded-lg p-3">
-      <select
-        className="input !py-1.5 !px-2 text-xs w-28"
-        value={form.periode}
-        onChange={(e) => setForm((f) => ({ ...f, periode: e.target.value }))}
-      >
-        {PERIODE_OPTIONS.map((p) => (
-          <option key={p.value} value={p.value}>{p.label}</option>
-        ))}
-      </select>
-      <input
-        required
-        type="number"
-        placeholder="Nilai realisasi"
-        className="input !py-1.5 !px-2 text-xs w-32"
-        value={form.nilaiRealisasi}
-        onChange={(e) => setForm((f) => ({ ...f, nilaiRealisasi: e.target.value }))}
+    <form onSubmit={handleSubmit} className="mt-2 flex flex-col gap-2 bg-slate-50 rounded-lg p-3">
+      <div className="flex gap-2">
+        <select
+          className="input !py-1.5 !px-2 text-xs w-28"
+          value={form.periode}
+          onChange={(e) => setForm((f) => ({ ...f, periode: e.target.value }))}
+        >
+          {PERIODE_OPTIONS.map((p) => (
+            <option key={p.value} value={p.value}>{p.label}</option>
+          ))}
+        </select>
+        <input
+          required
+          type="number"
+          placeholder="Nilai realisasi"
+          className="input !py-1.5 !px-2 text-xs flex-1"
+          value={form.nilaiRealisasi}
+          onChange={(e) => setForm((f) => ({ ...f, nilaiRealisasi: e.target.value }))}
+        />
+      </div>
+      <textarea
+        placeholder="Analisis penyebab (wajib diisi kalau capaian jauh dari target)"
+        className="input !py-1.5 !px-2 text-xs min-h-14"
+        value={form.analisisPenyebab}
+        onChange={(e) => setForm((f) => ({ ...f, analisisPenyebab: e.target.value }))}
+      />
+      <textarea
+        placeholder="Rencana tindak lanjut"
+        className="input !py-1.5 !px-2 text-xs min-h-14"
+        value={form.rencanaTindakLanjut}
+        onChange={(e) => setForm((f) => ({ ...f, rencanaTindakLanjut: e.target.value }))}
       />
       <input
-        placeholder="Catatan (opsional)"
-        className="input !py-1.5 !px-2 text-xs flex-1 min-w-32"
-        value={form.catatan}
-        onChange={(e) => setForm((f) => ({ ...f, catatan: e.target.value }))}
+        placeholder="Tautan bukti dukung (opsional)"
+        className="input !py-1.5 !px-2 text-xs"
+        value={form.buktiDukungUrl}
+        onChange={(e) => setForm((f) => ({ ...f, buktiDukungUrl: e.target.value }))}
       />
-      <button type="submit" disabled={loading} className="btn-primary !py-1.5 !px-3 text-xs">
-        {loading ? "…" : "Simpan"}
-      </button>
-      <button type="button" onClick={() => setOpen(false)} className="text-xs text-slate-400">
-        Batal
-      </button>
-      {error && <p className="text-xs text-red-600 w-full">{error}</p>}
+      <div className="flex items-center gap-2">
+        <button type="submit" disabled={loading} className="btn-primary !py-1.5 !px-3 text-xs w-fit">
+          {loading ? "…" : "Simpan Laporan"}
+        </button>
+        <button type="button" onClick={() => setOpen(false)} className="text-xs text-slate-400">
+          Batal
+        </button>
+      </div>
+      {error && <p className="text-xs text-red-600">{error}</p>}
     </form>
   );
 }

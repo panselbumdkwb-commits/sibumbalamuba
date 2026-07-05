@@ -9,17 +9,13 @@ type MenuItem = {
   roles: UserRole[];
   icon: string;
   color: string;
+  group: string;
 };
 
+const GROUP_ORDER = ["Data BUMD", "Data BLUD", "Data Seleksi", "Laporan & Pengawasan", "Administrasi Sistem"];
+
 const MENU: MenuItem[] = [
-  {
-    href: "/internal/laporan",
-    label: "Laporan Ringkas Pimpinan",
-    description: "Ringkasan BUMD, BLUD, evaluasi, dan seleksi lintas entitas (lihat saja).",
-    roles: ["eksekutif", "super_admin"],
-    icon: "📊",
-    color: "bg-violet-50 text-violet-700",
-  },
+  // ---------------------------------------------------------- Data BUMD
   {
     href: "/internal/bumd/profil",
     label: "Profil BUMD",
@@ -27,14 +23,7 @@ const MENU: MenuItem[] = [
     roles: ["admin_bumd", "admin_bpsda", "super_admin"],
     icon: "🏢",
     color: "bg-primary-50 text-primary-700",
-  },
-  {
-    href: "/internal/blud/profil",
-    label: "Profil BLUD",
-    description: "Kelola data BLUD (admin_blud: entitas sendiri) atau lihat saja (admin_bpsda).",
-    roles: ["admin_blud", "admin_bpsda", "super_admin"],
-    icon: "🏥",
-    color: "bg-cyan-50 text-cyan-700",
+    group: "Data BUMD",
   },
   {
     href: "/internal/bumd/perencanaan",
@@ -43,14 +32,16 @@ const MENU: MenuItem[] = [
     roles: ["admin_bumd", "admin_bpsda", "eksekutif", "super_admin"],
     icon: "🎯",
     color: "bg-primary-50 text-primary-700",
+    group: "Data BUMD",
   },
   {
     href: "/internal/bumd/monitoring",
-    label: "Monitoring Realisasi",
-    description: "Lapor & verifikasi realisasi terhadap target KPI.",
+    label: "Monitoring Realisasi BUMD",
+    description: "Lapor & tanggapi realisasi terhadap target KPI.",
     roles: ["admin_bumd", "admin_bpsda", "eksekutif", "super_admin"],
     icon: "📈",
     color: "bg-emerald-50 text-emerald-700",
+    group: "Data BUMD",
   },
   {
     href: "/internal/bumd/dashboard-kinerja",
@@ -59,6 +50,7 @@ const MENU: MenuItem[] = [
     roles: ["admin_bumd", "admin_bpsda", "eksekutif", "super_admin"],
     icon: "📊",
     color: "bg-teal-50 text-teal-700",
+    group: "Data BUMD",
   },
   {
     href: "/internal/bumd/risiko",
@@ -67,6 +59,18 @@ const MENU: MenuItem[] = [
     roles: ["admin_bumd", "admin_bpsda", "eksekutif", "super_admin"],
     icon: "⚠️",
     color: "bg-red-50 text-red-700",
+    group: "Data BUMD",
+  },
+
+  // ---------------------------------------------------------- Data BLUD
+  {
+    href: "/internal/blud/profil",
+    label: "Profil BLUD",
+    description: "Kelola data BLUD (admin_blud: entitas sendiri) atau lihat saja (admin_bpsda).",
+    roles: ["admin_blud", "admin_bpsda", "super_admin"],
+    icon: "🏥",
+    color: "bg-cyan-50 text-cyan-700",
+    group: "Data BLUD",
   },
   {
     href: "/internal/blud/perencanaan",
@@ -75,14 +79,16 @@ const MENU: MenuItem[] = [
     roles: ["admin_blud", "admin_bpsda", "eksekutif", "super_admin"],
     icon: "🎯",
     color: "bg-cyan-50 text-cyan-700",
+    group: "Data BLUD",
   },
   {
     href: "/internal/blud/monitoring",
     label: "Monitoring Realisasi BLUD",
-    description: "Lapor & verifikasi realisasi terhadap target KPI (dengan analisis penyebab).",
+    description: "Lapor & verifikasi realisasi (dengan analisis penyebab & rencana tindak lanjut).",
     roles: ["admin_blud", "admin_bpsda", "eksekutif", "super_admin"],
     icon: "📈",
     color: "bg-emerald-50 text-emerald-700",
+    group: "Data BLUD",
   },
   {
     href: "/internal/blud/dashboard-kinerja",
@@ -91,6 +97,7 @@ const MENU: MenuItem[] = [
     roles: ["admin_blud", "admin_bpsda", "eksekutif", "super_admin"],
     icon: "📊",
     color: "bg-teal-50 text-teal-700",
+    group: "Data BLUD",
   },
   {
     href: "/internal/blud/risiko",
@@ -99,15 +106,10 @@ const MENU: MenuItem[] = [
     roles: ["admin_blud", "admin_bpsda", "eksekutif", "super_admin"],
     icon: "⚠️",
     color: "bg-red-50 text-red-700",
+    group: "Data BLUD",
   },
-  {
-    href: "/internal/bobot-indikator",
-    label: "Bobot Indikator Evaluasi",
-    description: "Atur bobot indikator penilaian kinerja BUMD/BLUD.",
-    roles: ["admin_bpsda", "super_admin"],
-    icon: "⚖️",
-    color: "bg-amber-50 text-amber-700",
-  },
+
+  // ------------------------------------------------------- Data Seleksi
   {
     href: "/internal/seleksi",
     label: "Kelola Seleksi",
@@ -115,6 +117,7 @@ const MENU: MenuItem[] = [
     roles: ["panitia_seleksi", "ketua_pansel", "super_admin"],
     icon: "📋",
     color: "bg-brand-50 text-brand-700",
+    group: "Data Seleksi",
   },
   {
     href: "/internal/dokumen",
@@ -123,6 +126,7 @@ const MENU: MenuItem[] = [
     roles: ["panitia_seleksi", "ketua_pansel", "super_admin"],
     icon: "✍️",
     color: "bg-indigo-50 text-indigo-700",
+    group: "Data Seleksi",
   },
   {
     href: "/internal/seleksi/dewas-komisaris/assisted-entry",
@@ -131,6 +135,7 @@ const MENU: MenuItem[] = [
     roles: ["super_admin"],
     icon: "🧾",
     color: "bg-rose-50 text-rose-700",
+    group: "Data Seleksi",
   },
   {
     href: "/internal/seleksi/penilaian-ukk",
@@ -139,7 +144,30 @@ const MENU: MenuItem[] = [
     roles: ["tim_ukk", "super_admin"],
     icon: "📝",
     color: "bg-accent-50 text-accent-700",
+    group: "Data Seleksi",
   },
+
+  // --------------------------------------------- Laporan & Pengawasan
+  {
+    href: "/internal/laporan",
+    label: "Laporan Ringkas Pimpinan",
+    description: "Ringkasan BUMD, BLUD, evaluasi, dan seleksi lintas entitas (lihat saja).",
+    roles: ["eksekutif", "super_admin"],
+    icon: "📊",
+    color: "bg-violet-50 text-violet-700",
+    group: "Laporan & Pengawasan",
+  },
+  {
+    href: "/internal/bobot-indikator",
+    label: "Bobot Indikator Evaluasi",
+    description: "Atur bobot indikator penilaian kinerja BUMD/BLUD.",
+    roles: ["admin_bpsda", "super_admin"],
+    icon: "⚖️",
+    color: "bg-amber-50 text-amber-700",
+    group: "Laporan & Pengawasan",
+  },
+
+  // ----------------------------------------------- Administrasi Sistem
   {
     href: "/internal/kelola-akun",
     label: "Kelola Akun Pengguna",
@@ -147,6 +175,7 @@ const MENU: MenuItem[] = [
     roles: ["super_admin"],
     icon: "👥",
     color: "bg-fuchsia-50 text-fuchsia-700",
+    group: "Administrasi Sistem",
   },
   {
     href: "/internal/audit-log",
@@ -155,6 +184,7 @@ const MENU: MenuItem[] = [
     roles: ["super_admin"],
     icon: "🛡️",
     color: "bg-slate-100 text-slate-700",
+    group: "Administrasi Sistem",
   },
 ];
 
@@ -186,6 +216,10 @@ export default async function InternalDashboardPage() {
   }
 
   const visibleMenu = MENU.filter((item) => item.roles.includes(profile.role));
+  const groups = GROUP_ORDER.map((group) => ({
+    group,
+    items: visibleMenu.filter((item) => item.group === group),
+  })).filter((g) => g.items.length > 0);
 
   return (
     <div className="flex flex-col">
@@ -209,23 +243,31 @@ export default async function InternalDashboardPage() {
         </div>
       </div>
 
-      <main className="p-6 max-w-5xl mx-auto w-full flex flex-col gap-6">
-        {visibleMenu.length > 0 ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {visibleMenu.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="card p-5 hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-150"
-              >
-                <div className={`h-11 w-11 rounded-xl flex items-center justify-center text-xl mb-3 ${item.color}`}>
-                  {item.icon}
-                </div>
-                <p className="font-medium text-slate-900">{item.label}</p>
-                <p className="text-xs text-slate-500 mt-1 leading-relaxed">{item.description}</p>
-              </Link>
-            ))}
-          </div>
+      <main className="p-6 max-w-5xl mx-auto w-full flex flex-col gap-10">
+        {groups.length > 0 ? (
+          groups.map(({ group, items }) => (
+            <section key={group}>
+              <div className="flex items-center gap-3 mb-4">
+                <h2 className="text-sm font-semibold text-slate-900 uppercase tracking-wide">{group}</h2>
+                <div className="h-px flex-1 bg-slate-200" />
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {items.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="card p-5 hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-150"
+                  >
+                    <div className={`h-11 w-11 rounded-xl flex items-center justify-center text-xl mb-3 ${item.color}`}>
+                      {item.icon}
+                    </div>
+                    <p className="font-medium text-slate-900">{item.label}</p>
+                    <p className="text-xs text-slate-500 mt-1 leading-relaxed">{item.description}</p>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          ))
         ) : (
           <p className="text-sm text-slate-500">
             Belum ada menu khusus untuk role Anda pada modul ini. Hubungi
