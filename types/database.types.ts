@@ -24,6 +24,19 @@ export type UserRole =
 
 export type EntityType = "bumd" | "blud";
 export type JenisSeleksi = "direksi" | "dewas" | "komisaris" | "pegawai_blud";
+
+export type KelompokTahapanSeleksi =
+  | "persiapan"
+  | "pengumuman"
+  | "pendaftaran"
+  | "seleksi_administrasi"
+  | "ukk"
+  | "penilaian"
+  | "wawancara_akhir"
+  | "penetapan"
+  | "dokumentasi"
+  | "evaluasi";
+export type StatusTahapanSeleksi = "belum_mulai" | "proses" | "selesai";
 export type JalurPendaftaran = "mandiri" | "assisted";
 export type StatusSeleksi =
   | "terdaftar"
@@ -737,6 +750,75 @@ export type Database = {
         Relationships: [];
       };
 
+      seleksi_proses: {
+        Row: {
+          id: string;
+          jenis_seleksi: JenisSeleksi;
+          bumd_id: string | null;
+          jabatan_lowong: string;
+          tahun: number;
+          kelompok_berjalan: KelompokTahapanSeleksi;
+          dibuat_oleh: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          jenis_seleksi: JenisSeleksi;
+          bumd_id?: string | null;
+          jabatan_lowong: string;
+          tahun: number;
+          kelompok_berjalan?: KelompokTahapanSeleksi;
+          dibuat_oleh?: string | null;
+        };
+        Update: Partial<{
+          jenis_seleksi: JenisSeleksi;
+          bumd_id: string | null;
+          jabatan_lowong: string;
+          tahun: number;
+          kelompok_berjalan: KelompokTahapanSeleksi;
+        }>;
+        Relationships: [];
+      };
+
+      seleksi_tahapan: {
+        Row: {
+          id: string;
+          seleksi_proses_id: string;
+          urutan: number;
+          kelompok: KelompokTahapanSeleksi;
+          nama_tugas: string;
+          output_label: string;
+          dasar_regulasi: string;
+          status: StatusTahapanSeleksi;
+          dokumen_id: string | null;
+          tanggal_selesai: string | null;
+          catatan: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          seleksi_proses_id: string;
+          urutan: number;
+          kelompok: KelompokTahapanSeleksi;
+          nama_tugas: string;
+          output_label: string;
+          dasar_regulasi: string;
+          status?: StatusTahapanSeleksi;
+          dokumen_id?: string | null;
+          tanggal_selesai?: string | null;
+          catatan?: string | null;
+        };
+        Update: Partial<{
+          status: StatusTahapanSeleksi;
+          dokumen_id: string | null;
+          tanggal_selesai: string | null;
+          catatan: string | null;
+        }>;
+        Relationships: [];
+      };
+
       konfigurasi_bobot: {
         Row: {
           id: string;
@@ -1082,6 +1164,8 @@ export type Database = {
       kategori_inovasi: KategoriInovasi;
       status_inovasi: StatusInovasi;
       sumber_rekomendasi: SumberRekomendasi;
+      kelompok_tahapan_seleksi: KelompokTahapanSeleksi;
+      status_tahapan_seleksi: StatusTahapanSeleksi;
     };
     CompositeTypes: Record<string, never>;
   };

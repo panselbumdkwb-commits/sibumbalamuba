@@ -26,6 +26,7 @@ const PESERTA_ROLES = ["peserta"];
 const ROLE_ROUTE_PREFIX: Record<string, string[]> = {
   "/internal/seleksi/penilaian-ukk": ["tim_ukk", "super_admin"],
   "/internal/seleksi/dewas-komisaris/assisted-entry": ["super_admin"],
+  "/internal/seleksi/proses": ["panitia_seleksi", "ketua_pansel", "eksekutif", "super_admin"],
   "/internal/seleksi": ["panitia_seleksi", "ketua_pansel", "super_admin"],
   "/internal/dokumen": ["panitia_seleksi", "ketua_pansel", "super_admin"],
   "/internal/audit-log": ["super_admin"],

@@ -34,7 +34,7 @@ Auth, RLS) + Vercel.
   alur verifikasi lebih kaya (3-tingkat + analisis penyebab + rencana
   tindak lanjut + bukti dukung), sesuai Permendagri 79/2018 & PPK-BLUD.
   Skema kepatuhan, inovasi pelayanan, dan tindak lanjut rekomendasi audit
-  sudah tersedia di database, halaman UI-nya menyusul (lihat bagian 11)
+  sudah tersedia di database, halaman UI-nya menyusul (lihat bagian 12)
 - ✅ **Verifikasi Monev BUMD disamakan dengan BLUD** — `admin_bpsda`
   sekarang bisa menyetujui, meminta perbaikan, ATAU menolak laporan
   `admin_bumd` disertai tanggapan/analisa tertulis (bukan cuma klik
@@ -48,6 +48,11 @@ Auth, RLS) + Vercel.
 - ✅ **Notifikasi `super_admin`**: lonceng di header (badge jumlah
   pembaruan 24 jam terakhir) + Audit Log yang sekarang menampilkan siapa
   melakukan apa, kapan (WIB) — tercatat otomatis lewat trigger database
+- ✅ **Proses Seleksi (Checklist Tugas Panitia)** — 24 tugas baku sesuai
+  matriks tugas & fungsi Panitia Seleksi BUMD, otomatis dibuat tiap
+  siklus seleksi baru, terhubung ke modul Surat & Dokumen (wewenang
+  tanda tangan `ketua_pansel` otomatis berlaku), plus panel referensi
+  kewenangan & prinsip kerja panitia
 
 ## 1. Setup Supabase
 
@@ -70,6 +75,7 @@ Auth, RLS) + Vercel.
    - `supabase/migrations/0012_monev_blud_performance_based.sql`
    - `supabase/migrations/0013_samakan_verifikasi_bumd_blud.sql`
    - `supabase/migrations/0014_notifikasi_audit_otomatis.sql`
+   - `supabase/migrations/0015_tahapan_kerja_panitia_seleksi.sql`
    - `supabase/seed.sql` (opsional, data contoh)
 3. **Project Settings > API** → salin `Project URL` dan `anon public key`.
 4. Buat akun `super_admin` pertama lewat **Authentication > Add User**,
@@ -151,6 +157,7 @@ Development → Deploy.
 | `/internal/bumd/dashboard-kinerja` | admin_bumd, admin_bpsda, eksekutif, super_admin | Visual target vs realisasi |
 | `/internal/bumd/risiko` | admin_bumd, admin_bpsda, eksekutif, super_admin | Registrasi risiko |
 | `/internal/bobot-indikator` | admin_bpsda, eksekutif, super_admin | Bobot indikator evaluasi |
+| `/internal/seleksi/proses` | panitia_seleksi, ketua_pansel, eksekutif, super_admin | Checklist 24 tugas baku per siklus seleksi |
 | `/internal/seleksi` | panitia_seleksi, ketua_pansel, super_admin | Verifikasi berkas & batalkan pendaftaran |
 | `/internal/dokumen` | panitia_seleksi, ketua_pansel, super_admin | Surat: draf/ajukan (panitia), setujui/tanda tangan (ketua) |
 | `/internal/seleksi/dewas-komisaris/assisted-entry` | super_admin | Assisted-entry |
@@ -330,9 +337,43 @@ target/realisasi aslinya.
 `blud_inovasi` (inovasi pelayanan — modul yang TIDAK ADA di BUMD), dan
 `blud_tindak_lanjut` (tindak lanjut rekomendasi audit/evaluasi) sudah
 lengkap dengan RLS di migration `0012`, tapi halaman frontend-nya belum
-dibuat — lihat bagian 11.
+dibuat — lihat bagian 12.
 
-## 9. Akun & Keamanan Login
+## 9. Proses Seleksi — Checklist Tugas Panitia
+
+Halaman `/internal/seleksi/proses` menerjemahkan "Matriks Tugas dan
+Fungsi Panitia Seleksi BUMD" jadi checklist kerja: setiap siklus seleksi
+baru (mis. "Seleksi Direktur Utama Perumdam Among Tirto 2026") otomatis
+mendapat **24 tugas baku** lewat trigger database
+(`buat_tahapan_seleksi_standar`), dikelompokkan ke 10 tahapan: Persiapan,
+Pengumuman, Pendaftaran, Seleksi Administrasi, UKK, Penilaian, Wawancara
+Akhir, Penetapan, Dokumentasi, Evaluasi.
+
+**Sengaja terhubung ke modul lain, bukan duplikasi**:
+- Output dokumen tiap tugas (Jadwal Seleksi, Berita Acara, Pengumuman,
+  Laporan Akhir, dst.) ditautkan ke dokumen yang dibuat lewat
+  **Surat & Dokumen** yang sudah ada — jadi wewenang tanda tangan
+  `ketua_pansel` vs `panitia_seleksi` biasa (bagian 6) otomatis berlaku
+  di sini juga, tidak ada logika persetujuan baru yang terpisah.
+- Tahap UKK & Penilaian tetap TIDAK memberi akses ke nilai mentah —
+  panitia hanya menandai "tugas sudah dikerjakan", bukan melihat skor.
+
+**Panel Kewenangan & Prinsip Kerja** — di setiap halaman detail proses
+ada panel referensi (bisa dibuka/tutup) berisi daftar wewenang
+("Menetapkan hasil setiap tahapan seleksi", dst.), yang **bukan**
+wewenang panitia (mis. "Mengangkat Direksi/Komisaris/Dewan Pengawas" —
+itu keputusan Kepala Daerah, di luar sistem ini), dan 6 prinsip kerja
+(objektif, transparan, akuntabel, profesional, adil, bebas benturan
+kepentingan) — supaya panitia selalu punya rujukan cepat tanpa buka
+dokumen regulasi terpisah.
+
+**Catatan desain penting**: baris di `seleksi_tahapan` **tidak bisa**
+ditambah/dihapus manual lewat aplikasi (tidak ada policy INSERT/DELETE)
+— hanya trigger otomatis yang boleh mengisi 24 baris itu. Ini sengaja,
+supaya daftar tugas selalu persis sesuai matriks resmi dan tidak bisa
+diutak-atik sembarangan.
+
+## 10. Akun & Keamanan Login
 
 - Setiap pemilik akun bisa mengganti password sendiri kapan saja.
 - Verifikasi Turnstile wajib diselesaikan sebelum login/registrasi
@@ -342,7 +383,7 @@ dibuat — lihat bagian 11.
   (`constraint username_format`) — validasi ganda supaya tidak bisa
   dilewati lewat panggilan API langsung.
 
-## 10. Dasar Regulasi
+## 11. Dasar Regulasi
 
 - **PP No. 54 Tahun 2017** — Badan Usaha Milik Daerah
 - **Permendagri No. 37 Tahun 2018** — Pengelolaan BUMD
@@ -355,7 +396,7 @@ transparansi ke masyarakat. Sesuaikan/lengkapi dengan Peraturan Wali
 Kota Batu terbaru yang mengatur seleksi Direksi/Dewas/Komisaris BUMD
 setempat.
 
-## 11. Langkah Selanjutnya
+## 12. Langkah Selanjutnya
 
 1. **Jendela waktu input Monev BLUD**: saat ini pembatasan tanggal 1–10
    hanya diterapkan untuk `admin_bumd` (sesuai yang diminta). Kalau
