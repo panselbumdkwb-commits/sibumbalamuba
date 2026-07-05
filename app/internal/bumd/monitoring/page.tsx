@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import PageHeader from "../../_components/page-header";
 import RealisasiForm from "./realisasi-form";
 import VerifyRealisasiButton from "./verify-realisasi-button";
+import { dalamJendelaInputMonev, tanggalHariIniWib } from "@/lib/monev-window";
 
 const TAHUN_INI = new Date().getFullYear();
 
@@ -38,7 +39,9 @@ export default async function MonitoringBumdPage() {
     redirect("/internal/dashboard");
   }
 
-  const canInput = profile.role === "admin_bumd" || profile.role === "super_admin";
+  const canInputRole = profile.role === "admin_bumd" || profile.role === "super_admin";
+  const jendelaTerbuka = profile.role === "super_admin" || dalamJendelaInputMonev();
+  const canInput = canInputRole && jendelaTerbuka;
   const canVerify = profile.role === "admin_bpsda" || profile.role === "super_admin";
 
   const supabase = await createClient();
@@ -67,6 +70,29 @@ export default async function MonitoringBumdPage() {
         title="Monitoring Realisasi Kinerja BUMD"
         description={`Lapor & tanggapi realisasi terhadap target KPI tahun ${TAHUN_INI}. Admin BPSDA bisa menyetujui, meminta perbaikan, atau menolak disertai analisa tertulis.`}
       />
+
+      {profile.role === "admin_bumd" && (
+        <div
+          className={`rounded-lg border px-4 py-3 text-sm ${
+            jendelaTerbuka
+              ? "border-accent-200 bg-accent-50 text-accent-800"
+              : "border-amber-300 bg-amber-50 text-amber-900"
+          }`}
+        >
+          {jendelaTerbuka ? (
+            <>
+              Input data Monev sedang <span className="font-medium">dibuka</span> (tanggal {tanggalHariIniWib()},
+              jendela tanggal 1–10 tiap bulan WIB).
+            </>
+          ) : (
+            <>
+              Input data Monev <span className="font-medium">ditutup</span> untuk bulan ini — hanya dibuka tanggal
+              1–10 setiap bulan (WIB). Sekarang tanggal {tanggalHariIniWib()}. Hubungi Super Admin kalau ada kondisi
+              mendesak.
+            </>
+          )}
+        </div>
+      )}
 
       {bumdList?.map((bumd) => {
         const kpis = kpiList?.filter((k) => k.bumd_id === bumd.id) ?? [];

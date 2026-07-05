@@ -10,6 +10,7 @@ import {
   risikoSchema,
   updateStatusRisikoSchema,
 } from "@/lib/validations/monev-bumd.schema";
+import { dalamJendelaInputMonev, PESAN_DI_LUAR_JENDELA_MONEV } from "@/lib/monev-window";
 
 // Menetapkan RKAP (target tahunan) — fungsi pengawasan BPSDA, bukan
 // admin_bumd (mencegah BUMD menetapkan target sendiri yang terlalu mudah).
@@ -57,8 +58,15 @@ export async function tambahKpi(input: unknown) {
 }
 
 // Input realisasi — fungsi admin_bumd (lapor kinerja sendiri).
+// HANYA dibuka tanggal 1-10 setiap bulan (WIB) untuk admin_bumd;
+// super_admin boleh kapan saja (koreksi/darurat).
 export async function laporRealisasi(input: unknown) {
   const profile = await requireRole(["admin_bumd", "super_admin"]);
+
+  if (profile.role === "admin_bumd" && !dalamJendelaInputMonev()) {
+    return { success: false as const, error: PESAN_DI_LUAR_JENDELA_MONEV };
+  }
+
   const parsed = realisasiSchema.safeParse(input);
   if (!parsed.success) return { success: false as const, error: "Input tidak valid" };
 

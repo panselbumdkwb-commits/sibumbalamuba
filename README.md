@@ -42,6 +42,12 @@ Auth, RLS) + Vercel.
 - ✅ **Dashboard Internal dikelompokkan**: Data BUMD, Data BLUD, Data
   Seleksi, Laporan & Pengawasan, Administrasi Sistem — tiap kelompok
   hanya tampil kalau ada menu yang relevan untuk role Anda
+- ✅ **Jam WIB** berjalan real-time di header portal internal & peserta
+- ✅ **Jendela input Monev BUMD**: `admin_bumd` hanya bisa lapor
+  realisasi tanggal 1–10 setiap bulan (WIB); `super_admin` selalu bisa
+- ✅ **Notifikasi `super_admin`**: lonceng di header (badge jumlah
+  pembaruan 24 jam terakhir) + Audit Log yang sekarang menampilkan siapa
+  melakukan apa, kapan (WIB) — tercatat otomatis lewat trigger database
 
 ## 1. Setup Supabase
 
@@ -63,6 +69,7 @@ Auth, RLS) + Vercel.
    - `supabase/migrations/0011_monev_bumd_performance_based.sql`
    - `supabase/migrations/0012_monev_blud_performance_based.sql`
    - `supabase/migrations/0013_samakan_verifikasi_bumd_blud.sql`
+   - `supabase/migrations/0014_notifikasi_audit_otomatis.sql`
    - `supabase/seed.sql` (opsional, data contoh)
 3. **Project Settings > API** → salin `Project URL` dan `anon public key`.
 4. Buat akun `super_admin` pertama lewat **Authentication > Add User**,
@@ -350,18 +357,27 @@ setempat.
 
 ## 11. Langkah Selanjutnya
 
-1. Halaman UI untuk 3 tabel yang sudah ada skemanya tapi belum ada
+1. **Jendela waktu input Monev BLUD**: saat ini pembatasan tanggal 1–10
+   hanya diterapkan untuk `admin_bumd` (sesuai yang diminta). Kalau
+   `admin_blud` perlu batasan waktu serupa (atau tanggal yang berbeda),
+   beri tahu saya.
+2. **Notifikasi real-time**: lonceng notifikasi saat ini menghitung ulang
+   setiap halaman dibuka (bukan push langsung begitu ada perubahan).
+   Untuk notifikasi benar-benar real-time (muncul tanpa refresh halaman),
+   langkah lanjutannya memakai [Supabase Realtime](https://supabase.com/docs/guides/realtime)
+   — beri tahu kalau ini prioritas.
+3. Halaman UI untuk 3 tabel yang sudah ada skemanya tapi belum ada
    halamannya: **Kepatuhan PPK-BLUD** (`blud_kepatuhan`), **Inovasi
    Pelayanan** (`blud_inovasi`), **Tindak Lanjut Rekomendasi Audit**
    (`blud_tindak_lanjut`). Bisa digabung jadi satu halaman "Tata Kelola
    BLUD" atau dipisah — beri tahu preferensinya.
-2. Halaman edit detail seleksi (`/internal/seleksi/[id]`) dengan riwayat
+4. Halaman edit detail seleksi (`/internal/seleksi/[id]`) dengan riwayat
    tahapan lengkap.
-3. Form pendaftaran mandiri peserta Direksi (upload berkas) yang
+5. Form pendaftaran mandiri peserta Direksi (upload berkas) yang
    memanggil `registerPesertaDireksi()` — sudah siap di
    `actions/seleksi.actions.ts`.
-4. Uji integrasi RLS terhadap project Supabase staging sebelum produksi.
-5. Review keamanan oleh pihak kedua (four-eyes principle) untuk modul
+6. Uji integrasi RLS terhadap project Supabase staging sebelum produksi.
+7. Review keamanan oleh pihak kedua (four-eyes principle) untuk modul
    assisted-entry dan penilaian UKK, mengingat sensitivitasnya.
-6. Pertimbangkan role terpisah untuk "ketua panitia" vs anggota biasa
+8. Pertimbangkan role terpisah untuk "ketua panitia" vs anggota biasa
    jika ada hak akses yang perlu dibedakan (lihat catatan di bagian 6).
