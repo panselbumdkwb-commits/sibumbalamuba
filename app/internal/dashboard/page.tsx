@@ -210,10 +210,22 @@ const ROLE_LABEL: Record<UserRole, string> = {
 };
 
 function sapaan() {
-  const jam = new Date().getHours();
-  if (jam < 11) return "Selamat pagi";
-  if (jam < 15) return "Selamat siang";
-  if (jam < 18) return "Selamat sore";
+  // BUG LAMA: new Date().getHours() mengambil jam server (UTC di
+  // Vercel), bukan WIB — akibatnya jam 06:14 WIB (pagi) bisa disapa
+  // "Selamat malam" karena di UTC itu masih jam 23:14 hari sebelumnya.
+  // Diperbaiki: hitung jam eksplisit di zona Asia/Jakarta, sama seperti
+  // komponen JamWib.
+  const jamWib = parseInt(
+    new Intl.DateTimeFormat("en-US", {
+      timeZone: "Asia/Jakarta",
+      hour: "2-digit",
+      hour12: false,
+    }).format(new Date()),
+    10
+  );
+  if (jamWib < 11) return "Selamat pagi";
+  if (jamWib < 15) return "Selamat siang";
+  if (jamWib < 18) return "Selamat sore";
   return "Selamat malam";
 }
 
