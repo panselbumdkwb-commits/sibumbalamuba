@@ -2,6 +2,7 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { ajukanSurat, putuskanSurat } from "@/actions/dokumen.actions";
 
 type Surat = {
@@ -12,6 +13,9 @@ type Surat = {
   isPembuat: boolean;
   adaApprover: boolean;
   tanggal: string;
+  nomorSurat: string | null;
+  jenisNaskah: string;
+  sifat: string;
 };
 
 const STATUS_COLOR: Record<string, string> = {
@@ -20,6 +24,17 @@ const STATUS_COLOR: Record<string, string> = {
   disetujui: "bg-accent-50 text-accent-700",
   ditolak: "bg-red-50 text-red-600",
   diarsipkan: "bg-slate-100 text-slate-400",
+};
+
+const JENIS_LABEL: Record<string, string> = {
+  surat_biasa: "Surat Biasa",
+  surat_undangan: "Surat Undangan",
+  nota_dinas: "Nota Dinas",
+  berita_acara: "Berita Acara",
+  surat_keterangan: "Surat Keterangan",
+  surat_edaran: "Surat Edaran",
+  laporan: "Laporan",
+  surat_pengantar: "Surat Pengantar",
 };
 
 export default function SuratRow({ surat, isKetua }: { surat: Surat; isKetua: boolean }) {
@@ -43,8 +58,16 @@ export default function SuratRow({ surat, isKetua }: { surat: Surat; isKetua: bo
   return (
     <div className="card p-4 flex items-center justify-between gap-4">
       <div className="min-w-0">
-        <p className="font-medium text-slate-900 truncate">{surat.judul}</p>
+        <div className="flex items-center gap-2 flex-wrap">
+          <p className="font-medium text-slate-900 truncate">{surat.judul}</p>
+          {surat.sifat !== "biasa" && (
+            <span className="badge bg-red-50 text-red-600 text-[10px] uppercase">{surat.sifat}</span>
+          )}
+        </div>
         <p className="text-xs text-slate-400 mt-0.5">
+          {JENIS_LABEL[surat.jenisNaskah] ?? surat.jenisNaskah}
+          {surat.nomorSurat && <span> · No. {surat.nomorSurat}</span>}
+          {" · "}
           {new Date(surat.tanggal).toLocaleString("id-ID")}
         </p>
       </div>
@@ -53,6 +76,12 @@ export default function SuratRow({ surat, isKetua }: { surat: Surat; isKetua: bo
         <span className={`badge ${STATUS_COLOR[surat.status] ?? "bg-slate-100 text-slate-500"}`}>
           {surat.statusLabel}
         </span>
+
+        {surat.nomorSurat && (
+          <Link href={`/internal/dokumen/${surat.id}/cetak`} className="text-xs text-primary-700 hover:underline">
+            Cetak
+          </Link>
+        )}
 
         {surat.isPembuat && surat.status === "draft" && (
           <button

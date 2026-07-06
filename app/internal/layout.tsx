@@ -14,7 +14,7 @@ export default async function InternalLayout({
   return (
     <div className="min-h-screen">
       <header
-        className="flex items-center justify-between gap-4 px-6 py-3 border-b bg-white"
+        className="no-print flex items-center justify-between gap-4 px-6 py-3 border-b bg-white"
         style={{ borderColor: "var(--color-border)" }}
       >
         <Link href="/internal/dashboard" className="font-medium text-sm shrink-0">
@@ -28,7 +28,7 @@ export default async function InternalLayout({
           <LogoutButton />
         </div>
       </header>
-      <div className="md:hidden px-6 py-2 border-b" style={{ borderColor: "var(--color-border)" }}>
+      <div className="no-print md:hidden px-6 py-2 border-b" style={{ borderColor: "var(--color-border)" }}>
         <JamWib />
       </div>
       {children}

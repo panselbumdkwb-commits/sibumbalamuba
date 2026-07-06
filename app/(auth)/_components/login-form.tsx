@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import Turnstile from "@/components/turnstile";
@@ -42,8 +42,41 @@ export default function LoginForm({ mode }: { mode: Mode }) {
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
 
   const captchaRequired = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
+
+  /**
+   * "Steril kalau tidak digunakan" — mengosongkan kredensial dari
+   * memori/DOM begitu tab ini tidak lagi terlihat (pindah tab/aplikasi)
+   * atau halaman ditinggalkan, supaya tidak tersisa di layar/riwayat
+   * navigasi (bfcache) kalau perangkat dipakai bergantian (mis. komputer
+   * bersama di kantor kelurahan/warnet) — risiko ini LEBIH besar untuk
+   * login peserta karena satu perangkat sering dipakai bergantian oleh
+   * banyak peserta berbeda.
+   */
+  useEffect(() => {
+    function bersihkan() {
+      setPassword("");
+      setShowPassword(false);
+      // Username tidak ikut dibersihkan di portal internal (kenyamanan
+      // pegawai yang sama login berulang di perangkat pribadi), TAPI
+      // untuk portal peserta kita bersihkan juga — perangkat lebih
+      // sering dipakai bergantian oleh peserta berbeda.
+      if (mode === "peserta") setUsername("");
+    }
+
+    function onVisibilityChange() {
+      if (document.visibilityState === "hidden") bersihkan();
+    }
+
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    window.addEventListener("pagehide", bersihkan);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      window.removeEventListener("pagehide", bersihkan);
+    };
+  }, [mode]);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -64,10 +97,8 @@ export default function LoginForm({ mode }: { mode: Mode }) {
     );
 
     if (rpcError) {
-      // RPC gagal total (bukan sekadar "username tidak ada") — biasanya
-      // berarti migration 0003_username_login.sql belum dijalankan di
-      // project Supabase, sehingga fungsi get_email_by_username belum ada.
       setLoading(false);
+      setPassword("");
       setError(
         `Gagal memproses login (${rpcError.message}). Kemungkinan migration database belum lengkap dijalankan — cek supabase/migrations/0003_username_login.sql.`
       );
@@ -76,6 +107,7 @@ export default function LoginForm({ mode }: { mode: Mode }) {
 
     if (!email) {
       setLoading(false);
+      setPassword("");
       setError(
         "Username tidak ditemukan. Periksa kembali penulisan username (huruf besar/kecil tidak masalah, tapi pastikan tidak ada spasi tersembunyi), atau pastikan kolom username pada baris profil akun ini sudah terisi di tabel profiles."
       );
@@ -83,6 +115,10 @@ export default function LoginForm({ mode }: { mode: Mode }) {
     }
 
     // 2) Login dengan email hasil resolusi + password + token captcha.
+    // CATATAN PENTING: token Turnstile ("captchaToken") HANYA membuktikan
+    // pengunjung ini manusia, bukan bot — ia TIDAK memvalidasi username
+    // atau password sama sekali. Validasi kredensial yang sesungguhnya
+    // baru terjadi di baris signInWithPassword() ini, di server Supabase.
     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -91,12 +127,14 @@ export default function LoginForm({ mode }: { mode: Mode }) {
 
     if (authError) {
       setLoading(false);
+      setPassword("");
       setError(describeAuthError(authError.message));
       return;
     }
 
     if (!authData.user) {
       setLoading(false);
+      setPassword("");
       setError("Login gagal karena sebab tidak diketahui. Coba lagi.");
       return;
     }
@@ -111,6 +149,7 @@ export default function LoginForm({ mode }: { mode: Mode }) {
     if (profileError || !profile) {
       await supabase.auth.signOut();
       setLoading(false);
+      setPassword("");
       setError(
         "Akun berhasil diautentikasi tetapi profil tidak ditemukan di tabel profiles. Ini biasanya berarti trigger handle_new_user belum aktif saat akun ini dibuat — tambahkan baris profil secara manual di Table Editor, atau buat ulang user setelah migration 0002/0003 dijalankan."
       );
@@ -120,6 +159,7 @@ export default function LoginForm({ mode }: { mode: Mode }) {
     if (!profile.is_active) {
       await supabase.auth.signOut();
       setLoading(false);
+      setPassword("");
       setError("Akun tidak aktif. Hubungi administrator.");
       return;
     }
@@ -127,23 +167,31 @@ export default function LoginForm({ mode }: { mode: Mode }) {
     if (!ALLOWED_ROLES[mode].includes(profile.role)) {
       await supabase.auth.signOut();
       setLoading(false);
+      setPassword("");
       setError(WRONG_PORTAL_MESSAGE[mode]);
       return;
     }
 
+    // Bersihkan form sebelum pindah halaman — mencegah kredensial
+    // tersisa di DOM kalau pengguna menekan tombol Back setelah masuk.
+    setPassword("");
     router.push(REDIRECT_TARGET[mode]);
     router.refresh();
   }
 
   return (
-    <form onSubmit={handleLogin} className="flex flex-col gap-4">
+    <form ref={formRef} onSubmit={handleLogin} autoComplete="off" className="flex flex-col gap-4">
       <div>
         <label className="label" htmlFor="username">Username</label>
         <input
           id="username"
+          name="sibumbalamuba_user"
           type="text"
           required
-          autoComplete="username"
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="off"
+          spellCheck={false}
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           className="input"
@@ -156,9 +204,10 @@ export default function LoginForm({ mode }: { mode: Mode }) {
         <div className="relative">
           <input
             id="password"
+            name="sibumbalamuba_pass"
             type={showPassword ? "text" : "password"}
             required
-            autoComplete="current-password"
+            autoComplete="off"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="input pr-16"
@@ -174,7 +223,14 @@ export default function LoginForm({ mode }: { mode: Mode }) {
         </div>
       </div>
 
-      <Turnstile onVerify={setCaptchaToken} onExpire={() => setCaptchaToken(null)} />
+      <div>
+        <Turnstile onVerify={setCaptchaToken} onExpire={() => setCaptchaToken(null)} />
+        <p className="text-xs text-slate-400 mt-1.5">
+          Verifikasi ini hanya membuktikan Anda manusia (bukan robot) —
+          username dan kata sandi tetap diperiksa terpisah di server
+          setelah Anda klik &quot;Masuk&quot;.
+        </p>
+      </div>
 
       {error && (
         <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">

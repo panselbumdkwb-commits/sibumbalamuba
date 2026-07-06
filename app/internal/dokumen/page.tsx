@@ -25,7 +25,7 @@ export default async function DokumenPage() {
   const supabase = await createClient();
   const { data: dokumen } = await supabase
     .from("dokumen_internal")
-    .select("id, judul, status, pembuat_id, approver_id, versi, created_at, updated_at")
+    .select("id, judul, status, pembuat_id, approver_id, versi, nomor_surat, jenis_naskah, sifat, created_at, updated_at")
     .order("created_at", { ascending: false });
 
   return (
@@ -55,6 +55,9 @@ export default async function DokumenPage() {
               isPembuat: d.pembuat_id === profile.id,
               adaApprover: Boolean(d.approver_id),
               tanggal: d.updated_at,
+              nomorSurat: d.nomor_surat,
+              jenisNaskah: d.jenis_naskah,
+              sifat: d.sifat,
             }}
             isKetua={isKetua}
           />

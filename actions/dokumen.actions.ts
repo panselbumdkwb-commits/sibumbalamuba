@@ -22,13 +22,19 @@ export async function buatSurat(input: unknown) {
 
   const parsed = buatSuratSchema.safeParse(input);
   if (!parsed.success) {
-    return { success: false as const, error: "Judul surat tidak valid (min. 5 karakter)" };
+    return { success: false as const, error: "Input tidak valid — periksa kembali judul (min. 5 karakter)" };
   }
 
   const supabase = await createClient();
   const { error } = await supabase.from("dokumen_internal").insert({
     pembuat_id: profile.id,
     judul: parsed.data.judul,
+    jenis_naskah: parsed.data.jenisNaskah,
+    sifat: parsed.data.sifat,
+    lampiran: parsed.data.lampiran || "-",
+    kepada: parsed.data.kepada ?? null,
+    isi_surat: parsed.data.isiSurat ?? null,
+    tembusan: parsed.data.tembusan ?? null,
     status: "draft",
   });
 
@@ -39,6 +45,9 @@ export async function buatSurat(input: unknown) {
   return { success: true as const };
 }
 
+// Nomor surat digenerate OTOMATIS di sini (bukan saat draf dibuat) —
+// begitu diajukan, format {urut}/PANSEL-{JENIS}/{bulan romawi}/{tahun}
+// sesuai pola umum penomoran naskah dinas pemda.
 export async function ajukanSurat(input: unknown) {
   await requireRole(["panitia_seleksi", "ketua_pansel", "super_admin"]);
 
@@ -48,9 +57,24 @@ export async function ajukanSurat(input: unknown) {
   }
 
   const supabase = await createClient();
+
+  const { data: dokumen } = await supabase
+    .from("dokumen_internal")
+    .select("jenis_naskah, nomor_surat")
+    .eq("id", parsed.data.dokumenId)
+    .single();
+
+  let nomorSurat = dokumen?.nomor_surat ?? null;
+  if (!nomorSurat && dokumen) {
+    const { data: nomorBaru } = await supabase.rpc("generate_nomor_surat", {
+      p_jenis: dokumen.jenis_naskah,
+    });
+    nomorSurat = nomorBaru ?? null;
+  }
+
   const { error } = await supabase
     .from("dokumen_internal")
-    .update({ status: "diajukan" })
+    .update({ status: "diajukan", nomor_surat: nomorSurat })
     .eq("id", parsed.data.dokumenId);
 
   if (error) {
