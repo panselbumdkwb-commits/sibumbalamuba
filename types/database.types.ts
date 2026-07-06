@@ -53,6 +53,16 @@ export type TahapPenilaian =
   | "presentasi"
   | "wawancara";
 export type StatusDokumen = "draft" | "diajukan" | "disetujui" | "ditolak" | "diarsipkan";
+export type JenisNaskahDinas =
+  | "surat_biasa"
+  | "surat_undangan"
+  | "nota_dinas"
+  | "berita_acara"
+  | "surat_keterangan"
+  | "surat_edaran"
+  | "laporan"
+  | "surat_pengantar";
+export type SifatNaskahDinas = "biasa" | "penting" | "segera" | "rahasia";
 
 export type KategoriIku = "keuangan" | "operasional" | "pelayanan" | "tata_kelola" | "kontribusi_daerah";
 export type JenisPeriodeMonev =
@@ -1052,6 +1062,13 @@ export type Database = {
           status: StatusDokumen;
           versi: number;
           approver_id: string | null;
+          nomor_surat: string | null;
+          jenis_naskah: JenisNaskahDinas;
+          sifat: SifatNaskahDinas;
+          lampiran: string | null;
+          kepada: string | null;
+          isi_surat: string | null;
+          tembusan: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -1063,6 +1080,13 @@ export type Database = {
           status?: StatusDokumen;
           versi?: number;
           approver_id?: string | null;
+          nomor_surat?: string | null;
+          jenis_naskah?: JenisNaskahDinas;
+          sifat?: SifatNaskahDinas;
+          lampiran?: string | null;
+          kepada?: string | null;
+          isi_surat?: string | null;
+          tembusan?: string | null;
         };
         Update: Partial<{
           judul: string;
@@ -1070,6 +1094,13 @@ export type Database = {
           status: StatusDokumen;
           versi: number;
           approver_id: string | null;
+          nomor_surat: string | null;
+          jenis_naskah: JenisNaskahDinas;
+          sifat: SifatNaskahDinas;
+          lampiran: string | null;
+          kepada: string | null;
+          isi_surat: string | null;
+          tembusan: string | null;
         }>;
         Relationships: [];
       };
@@ -1139,6 +1170,10 @@ export type Database = {
           sudah_lengkap: boolean;
         }[];
       };
+      generate_nomor_surat: {
+        Args: { p_jenis: JenisNaskahDinas };
+        Returns: string;
+      };
     };
     Enums: {
       user_role: UserRole;
@@ -1166,6 +1201,8 @@ export type Database = {
       sumber_rekomendasi: SumberRekomendasi;
       kelompok_tahapan_seleksi: KelompokTahapanSeleksi;
       status_tahapan_seleksi: StatusTahapanSeleksi;
+      jenis_naskah_dinas: JenisNaskahDinas;
+      sifat_naskah_dinas: SifatNaskahDinas;
     };
     CompositeTypes: Record<string, never>;
   };

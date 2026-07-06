@@ -19,6 +19,10 @@ Auth, RLS) + Vercel.
   kata sandi, tapi tidak dipakai sehari-hari untuk login)
 - ✅ **Verifikasi manusia (Cloudflare Turnstile)** terpasang di form login
   dan registrasi
+- ✅ **Form login diperkeras**: autofill browser dimatikan, kata sandi
+  otomatis terhapus dari layar saat gagal login atau tab
+  disembunyikan/ditinggalkan — mengurangi risiko kredensial tersisa di
+  perangkat yang dipakai bergantian (khususnya portal peserta)
 - ✅ **9 role dengan hak akses terpisah jelas**: `super_admin`,
   `admin_bpsda`, `admin_bumd`, `admin_blud`, `panitia_seleksi`,
   `ketua_pansel`, `tim_ukk`, `eksekutif`, `peserta` — lihat matriks di
@@ -53,6 +57,10 @@ Auth, RLS) + Vercel.
   siklus seleksi baru, terhubung ke modul Surat & Dokumen (wewenang
   tanda tangan `ketua_pansel` otomatis berlaku), plus panel referensi
   kewenangan & prinsip kerja panitia
+- ✅ **Surat & Dokumen sesuai Tata Naskah Dinas** (Permendagri No.
+  1/2023): nomor surat otomatis, sifat (Biasa/Penting/Segera/Rahasia),
+  lampiran, hal, kepada, isi, tembusan, dan halaman **Cetak** dengan kop
+  surat + blok tanda tangan resmi, siap cetak/simpan PDF
 
 ## 1. Setup Supabase
 
@@ -76,6 +84,7 @@ Auth, RLS) + Vercel.
    - `supabase/migrations/0013_samakan_verifikasi_bumd_blud.sql`
    - `supabase/migrations/0014_notifikasi_audit_otomatis.sql`
    - `supabase/migrations/0015_tahapan_kerja_panitia_seleksi.sql`
+   - `supabase/migrations/0016_surat_tata_naskah_dinas.sql`
    - `supabase/seed.sql` (opsional, data contoh)
 3. **Project Settings > API** → salin `Project URL` dan `anon public key`.
 4. Buat akun `super_admin` pertama lewat **Authentication > Add User**,
@@ -192,6 +201,20 @@ username, alurnya:
 
 Lihat `supabase/migrations/0003_username_login.sql` untuk detail
 implementasi database-nya.
+
+**Penting soal Turnstile**: widget "saya bukan robot" pada langkah 3
+hanya membuktikan pengunjung adalah manusia — ia **tidak pernah**
+memvalidasi apakah username/password benar. Validasi kredensial
+sesungguhnya terjadi di `signInWithPassword()` itu sendiri, di server
+Supabase, bukan di Turnstile. Keduanya independen; Turnstile bisa
+"Success" walau password yang diketik salah.
+
+**Keamanan form login**: kolom username & password mematikan autofill
+browser (`autoComplete="off"`), dan kata sandi otomatis dikosongkan dari
+layar setiap kali login gagal, tab disembunyikan (pindah aplikasi), atau
+halaman ditinggalkan — supaya tidak tersisa kalau perangkat dipakai
+bergantian oleh orang lain (paling relevan untuk portal peserta, yang
+sering diakses dari komputer bersama).
 
 ## 6. Matriks Hak Akses (RBAC)
 
@@ -372,6 +395,40 @@ ditambah/dihapus manual lewat aplikasi (tidak ada policy INSERT/DELETE)
 — hanya trigger otomatis yang boleh mengisi 24 baris itu. Ini sengaja,
 supaya daftar tugas selalu persis sesuai matriks resmi dan tidak bisa
 diutak-atik sembarangan.
+
+### Surat & Dokumen sesuai Tata Naskah Dinas (Permendagri No. 1/2023)
+
+Sejak migration `0016`, form draf surat (`/internal/dokumen`) mengikuti
+unsur baku naskah dinas: **Jenis Naskah** (Surat Biasa/Undangan/Nota
+Dinas/Berita Acara/dst.), **Sifat** (Biasa/Penting/Segera/Rahasia),
+**Lampiran**, **Hal**, **Kepada**, **Isi**, dan **Tembusan**.
+
+**Nomor surat dibuat otomatis** begitu surat diajukan (bukan saat masih
+draf), format `{urut}/PANSEL-{KODE JENIS}/{bulan romawi}/{tahun}` —
+pola umum penomoran naskah dinas pemda. Begitu surat berstatus
+**disetujui/diajukan** (sudah bernomor), tombol **Cetak** muncul,
+membuka halaman `/internal/dokumen/[id]/cetak` berisi kop surat, blok
+nomor/sifat/lampiran/hal, tanggal, kepada, isi, tembusan, dan blok tanda
+tangan Ketua Panitia — siap dicetak atau disimpan sebagai PDF lewat
+dialog print browser.
+
+### FAQ: kenapa draf surat saya tidak bisa langsung disetujui sendiri?
+
+Ini **disengaja**, bukan bug. Sistem memang dirancang dengan **dua role
+terpisah untuk dua orang berbeda**:
+
+- **`panitia_seleksi`** (anggota biasa) — bisa membuat draf & mengajukan,
+  **tidak bisa** menyetujui/menandatangani surat miliknya sendiri.
+- **`ketua_pansel`** (ketua panitia) — satu-satunya yang bisa menyetujui
+  & menandatangani surat yang diajukan.
+
+Kalau Anda login dengan satu akun dan hanya melihat tombol "Ajukan"
+(tidak ada "Setujui & Tanda Tangani"), berarti akun itu ber-role
+`panitia_seleksi`, bukan `ketua_pansel`. **Buat dua akun terpisah** lewat
+Kelola Akun Pengguna — satu untuk operasional sehari-hari anggota
+panitia, satu lagi khusus dipegang ketua panitia untuk menyetujui surat.
+Surat yang berstatus "Menunggu Persetujuan" akan langsung siap disetujui
+begitu akun `ketua_pansel` login ke `/internal/dokumen`.
 
 ## 10. Akun & Keamanan Login
 
