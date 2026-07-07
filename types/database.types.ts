@@ -64,6 +64,18 @@ export type JenisNaskahDinas =
   | "surat_pengantar";
 export type SifatNaskahDinas = "biasa" | "penting" | "segera" | "rahasia";
 
+export type AspekKompetensiUkk =
+  | "integritas"
+  | "kepemimpinan"
+  | "kompetensi_manajerial"
+  | "kompetensi_bisnis"
+  | "kompetensi_keuangan"
+  | "tata_kelola"
+  | "regulasi"
+  | "komunikasi"
+  | "problem_solving"
+  | "business_plan";
+
 export type KategoriIku = "keuangan" | "operasional" | "pelayanan" | "tata_kelola" | "kontribusi_daerah";
 export type JenisPeriodeMonev =
   | "triwulan_1"
@@ -829,6 +841,61 @@ export type Database = {
         Relationships: [];
       };
 
+      ukk_instrumen: {
+        Row: {
+          id: string;
+          seleksi_proses_id: string;
+          aspek: AspekKompetensiUkk;
+          bobot: number;
+          deskripsi_indikator: string | null;
+          dibuat_oleh: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          seleksi_proses_id: string;
+          aspek: AspekKompetensiUkk;
+          bobot: number;
+          deskripsi_indikator?: string | null;
+          dibuat_oleh?: string | null;
+        };
+        Update: Partial<{
+          aspek: AspekKompetensiUkk;
+          bobot: number;
+          deskripsi_indikator: string | null;
+        }>;
+        Relationships: [];
+      };
+
+      ukk_penilaian: {
+        Row: {
+          id: string;
+          peserta_id: string;
+          instrumen_id: string;
+          tim_ukk_id: string;
+          skor: number;
+          catatan: string | null;
+          is_final: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          peserta_id: string;
+          instrumen_id: string;
+          tim_ukk_id: string;
+          skor: number;
+          catatan?: string | null;
+          is_final?: boolean;
+        };
+        Update: Partial<{
+          skor: number;
+          catatan: string | null;
+          is_final: boolean;
+        }>;
+        Relationships: [];
+      };
+
       konfigurasi_bobot: {
         Row: {
           id: string;
@@ -949,6 +1016,7 @@ export type Database = {
           jalur_pendaftaran: JalurPendaftaran;
           difasilitasi_oleh: string | null;
           bumd_blud_id: string | null;
+          seleksi_proses_id: string | null;
           token_undangan: string | null;
           status: StatusSeleksi;
           created_at: string;
@@ -961,6 +1029,7 @@ export type Database = {
           jalur_pendaftaran?: JalurPendaftaran;
           difasilitasi_oleh?: string | null;
           bumd_blud_id?: string | null;
+          seleksi_proses_id?: string | null;
           token_undangan?: string | null;
           status?: StatusSeleksi;
         };
@@ -969,6 +1038,7 @@ export type Database = {
           jalur_pendaftaran: JalurPendaftaran;
           difasilitasi_oleh: string | null;
           bumd_blud_id: string | null;
+          seleksi_proses_id: string | null;
           token_undangan: string | null;
           status: StatusSeleksi;
         }>;
@@ -1174,6 +1244,17 @@ export type Database = {
         Args: { p_jenis: JenisNaskahDinas };
         Returns: string;
       };
+      get_rekap_ukk_tertimbang: {
+        Args: { p_seleksi_proses_id: string };
+        Returns: {
+          peserta_id: string;
+          jumlah_asesor_final: number;
+          total_tim_ukk_aktif: number;
+          skor_akhir: number | null;
+          sudah_lengkap: boolean;
+          peringkat: number;
+        }[];
+      };
     };
     Enums: {
       user_role: UserRole;
@@ -1203,6 +1284,7 @@ export type Database = {
       status_tahapan_seleksi: StatusTahapanSeleksi;
       jenis_naskah_dinas: JenisNaskahDinas;
       sifat_naskah_dinas: SifatNaskahDinas;
+      aspek_kompetensi_ukk: AspekKompetensiUkk;
     };
     CompositeTypes: Record<string, never>;
   };

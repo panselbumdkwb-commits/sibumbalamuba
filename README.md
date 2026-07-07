@@ -38,7 +38,7 @@ Auth, RLS) + Vercel.
   alur verifikasi lebih kaya (3-tingkat + analisis penyebab + rencana
   tindak lanjut + bukti dukung), sesuai Permendagri 79/2018 & PPK-BLUD.
   Skema kepatuhan, inovasi pelayanan, dan tindak lanjut rekomendasi audit
-  sudah tersedia di database, halaman UI-nya menyusul (lihat bagian 12)
+  sudah tersedia di database, halaman UI-nya menyusul (lihat bagian 13)
 - ✅ **Verifikasi Monev BUMD disamakan dengan BLUD** — `admin_bpsda`
   sekarang bisa menyetujui, meminta perbaikan, ATAU menolak laporan
   `admin_bumd` disertai tanggapan/analisa tertulis (bukan cuma klik
@@ -61,6 +61,11 @@ Auth, RLS) + Vercel.
   1/2023): nomor surat otomatis, sifat (Biasa/Penting/Segera/Rahasia),
   lampiran, hal, kepada, isi, tembusan, dan halaman **Cetak** dengan kop
   surat + blok tanda tangan resmi, siap cetak/simpan PDF
+- ✅ **Modul Tim UKK**: instrumen & bobot penilaian per 10 aspek
+  kompetensi (Integritas, Kepemimpinan, dst.), penilaian digital
+  independen per asesor, rekap skor tertimbang otomatis + peringkat,
+  generate draf Berita Acara UKK, ekspor CSV (Excel) — nilai mentah
+  tetap tidak pernah terlihat siapa pun selain asesor pemiliknya
 
 ## 1. Setup Supabase
 
@@ -85,6 +90,7 @@ Auth, RLS) + Vercel.
    - `supabase/migrations/0014_notifikasi_audit_otomatis.sql`
    - `supabase/migrations/0015_tahapan_kerja_panitia_seleksi.sql`
    - `supabase/migrations/0016_surat_tata_naskah_dinas.sql`
+   - `supabase/migrations/0017_tim_ukk_instrumen_dan_penilaian.sql`
    - `supabase/seed.sql` (opsional, data contoh)
 3. **Project Settings > API** → salin `Project URL` dan `anon public key`.
 4. Buat akun `super_admin` pertama lewat **Authentication > Add User**,
@@ -166,7 +172,8 @@ Development → Deploy.
 | `/internal/bumd/dashboard-kinerja` | admin_bumd, admin_bpsda, eksekutif, super_admin | Visual target vs realisasi |
 | `/internal/bumd/risiko` | admin_bumd, admin_bpsda, eksekutif, super_admin | Registrasi risiko |
 | `/internal/bobot-indikator` | admin_bpsda, eksekutif, super_admin | Bobot indikator evaluasi |
-| `/internal/seleksi/proses` | panitia_seleksi, ketua_pansel, eksekutif, super_admin | Checklist 24 tugas baku per siklus seleksi |
+| `/internal/seleksi/proses` | panitia_seleksi, ketua_pansel, eksekutif, admin_bpsda, super_admin | Checklist 24 tugas baku per siklus seleksi |
+| `/internal/seleksi/penilaian-ukk/rekap` | tim_ukk, panitia_seleksi, ketua_pansel, eksekutif, admin_bpsda, super_admin | Rekap skor tertimbang & peringkat UKK |
 | `/internal/seleksi` | panitia_seleksi, ketua_pansel, super_admin | Verifikasi berkas & batalkan pendaftaran |
 | `/internal/dokumen` | panitia_seleksi, ketua_pansel, super_admin | Surat: draf/ajukan (panitia), setujui/tanda tangan (ketua) |
 | `/internal/seleksi/dewas-komisaris/assisted-entry` | super_admin | Assisted-entry |
@@ -360,7 +367,7 @@ target/realisasi aslinya.
 `blud_inovasi` (inovasi pelayanan — modul yang TIDAK ADA di BUMD), dan
 `blud_tindak_lanjut` (tindak lanjut rekomendasi audit/evaluasi) sudah
 lengkap dengan RLS di migration `0012`, tapi halaman frontend-nya belum
-dibuat — lihat bagian 12.
+dibuat — lihat bagian 13.
 
 ## 9. Proses Seleksi — Checklist Tugas Panitia
 
@@ -430,7 +437,48 @@ panitia, satu lagi khusus dipegang ketua panitia untuk menyetujui surat.
 Surat yang berstatus "Menunggu Persetujuan" akan langsung siap disetujui
 begitu akun `ketua_pansel` login ke `/internal/dokumen`.
 
-## 10. Akun & Keamanan Login
+## 10. Modul Tim UKK
+
+Menerjemahkan "Matriks Tugas dan Fungsi Tim Uji Kelayakan dan Kepatutan
+(UKK)" — dengan prinsip dasar dari dokumen sumber: **Tim UKK bukan
+pengambil keputusan akhir**. Hasil kerjanya adalah penilaian &
+rekomendasi profesional; penetapan lulus dan pengangkatan tetap wewenang
+Kepala Daerah/KPM (PP 54/2017, Permendagri 37/2018). Sistem ini
+menegakkan prinsip itu secara teknis — Tim UKK **tidak pernah** punya
+akses untuk mengubah status kelulusan peserta atau membuat keputusan
+pengangkatan di aplikasi ini, hanya memberi skor.
+
+**Alur kerja** (`/internal/seleksi/penilaian-ukk`):
+1. Panitia menautkan peserta ke siklus seleksi lewat selector baru di
+   halaman **Kelola Seleksi** (`/internal/seleksi`) — tanpa ini, peserta
+   tidak akan tampil ke Tim UKK.
+2. Tim UKK menyusun **instrumen & bobot** 10 aspek kompetensi
+   (Integritas, Kepemimpinan, Kompetensi Manajerial/Bisnis/Keuangan,
+   Tata Kelola, Regulasi, Komunikasi, Problem Solving, Business Plan) —
+   wewenang profesional Tim UKK sendiri, bukan panitia (independensi).
+   Panitia/ketua/eksekutif/admin_bpsda bisa **melihat** instrumen ini
+   (transparansi metode) tapi tidak bisa mengubahnya.
+3. Setiap anggota Tim UKK menilai tiap peserta per aspek **secara
+   independen** — tidak pernah melihat nilai anggota lain (RLS).
+4. **Finalisasi** mengunci nilai (tidak bisa diubah lagi setelah itu).
+5. **Rekap & Peringkat** (`/internal/seleksi/penilaian-ukk/rekap`)
+   menghitung skor akhir tertimbang = rata-rata (across asesor final)
+   dari `Σ(skor × bobot)` — dihitung lewat fungsi database
+   (`get_rekap_ukk_tertimbang`, pola sama seperti `get_rekap_nilai_ukk`
+   supaya tidak kena warning linter "security definer view"), bukan
+   nilai mentah, jadi panitia/ketua/eksekutif tetap tidak pernah melihat
+   skor individual per asesor per aspek.
+6. **Buat Draf Berita Acara UKK** — tombol di halaman rekap membuat draf
+   surat lewat modul Surat & Dokumen yang sudah ada (bukan sistem
+   terpisah), otomatis terisi ringkasan instrumen + peringkat hasil,
+   siap diajukan dan ditandatangani `ketua_pansel` seperti surat lain.
+7. **Ekspor** — tombol "Ekspor ke Excel" di halaman rekap mengunduh CSV
+   (dibuka native oleh Excel/Google Sheets). Ini **bukan** file `.xlsx`
+   biner asli — kalau Anda butuh format `.xlsx` sungguhan (dengan
+   styling, multi-sheet, dll.), beri tahu saya untuk menambahkan library
+   khusus.
+
+## 11. Akun & Keamanan Login
 
 - Setiap pemilik akun bisa mengganti password sendiri kapan saja.
 - Verifikasi Turnstile wajib diselesaikan sebelum login/registrasi
@@ -440,7 +488,7 @@ begitu akun `ketua_pansel` login ke `/internal/dokumen`.
   (`constraint username_format`) — validasi ganda supaya tidak bisa
   dilewati lewat panggilan API langsung.
 
-## 11. Dasar Regulasi
+## 12. Dasar Regulasi
 
 - **PP No. 54 Tahun 2017** — Badan Usaha Milik Daerah
 - **Permendagri No. 37 Tahun 2018** — Pengelolaan BUMD
@@ -453,7 +501,7 @@ transparansi ke masyarakat. Sesuaikan/lengkapi dengan Peraturan Wali
 Kota Batu terbaru yang mengatur seleksi Direksi/Dewas/Komisaris BUMD
 setempat.
 
-## 12. Langkah Selanjutnya
+## 13. Langkah Selanjutnya
 
 1. **Jendela waktu input Monev BLUD**: saat ini pembatasan tanggal 1–10
    hanya diterapkan untuk `admin_bumd` (sesuai yang diminta). Kalau
