@@ -2,6 +2,7 @@ import { requireRole } from "@/lib/auth/rbac";
 import { createClient } from "@/lib/supabase/server";
 import VerifyBerkasButton from "./verify-berkas-button";
 import CancelPesertaButton from "./cancel-peserta-button";
+import TautkanProsesSelect from "./tautkan-proses-select";
 import PageHeader from "../_components/page-header";
 
 const STATUS_LABEL: Record<string, string> = {
@@ -14,17 +15,33 @@ const STATUS_LABEL: Record<string, string> = {
   mengundurkan_diri: "Mengundurkan Diri",
 };
 
+const JENIS_LABEL: Record<string, string> = {
+  direksi: "Direksi",
+  dewas: "Dewan Pengawas",
+  komisaris: "Komisaris",
+  pegawai_blud: "Pegawai BLUD",
+};
+
 const STATUS_FINAL = ["selesai", "ditolak", "mengundurkan_diri"];
 
 export default async function KelolaSeleksiPage() {
   await requireRole(["panitia_seleksi", "ketua_pansel", "super_admin"]);
 
   const supabase = await createClient();
-  const { data: peserta } = await supabase
-    .from("peserta_seleksi")
-    .select("id, jenis_seleksi, jalur_pendaftaran, status, created_at")
-    .order("created_at", { ascending: false })
-    .limit(50);
+  const [{ data: peserta }, { data: prosesList }] = await Promise.all([
+    supabase
+      .from("peserta_seleksi")
+      .select("id, jenis_seleksi, jalur_pendaftaran, status, seleksi_proses_id, created_at")
+      .order("created_at", { ascending: false })
+      .limit(50),
+    supabase.from("seleksi_proses").select("id, jenis_seleksi, jabatan_lowong, tahun").order("created_at", { ascending: false }),
+  ]);
+
+  const prosesOptions =
+    prosesList?.map((p) => ({
+      id: p.id,
+      label: `${JENIS_LABEL[p.jenis_seleksi] ?? p.jenis_seleksi} — ${p.jabatan_lowong} (${p.tahun})`,
+    })) ?? [];
 
   const pesertaIds = peserta?.map((p) => p.id) ?? [];
   const { data: berkasList } = pesertaIds.length
@@ -64,6 +81,15 @@ export default async function KelolaSeleksiPage() {
                   </span>
                   {!STATUS_FINAL.includes(p.status) && <CancelPesertaButton pesertaId={p.id} />}
                 </div>
+              </div>
+
+              <div className="mt-3">
+                <label className="text-xs text-slate-400 block mb-1">Siklus Proses Seleksi (untuk Tim UKK)</label>
+                <TautkanProsesSelect
+                  pesertaId={p.id}
+                  prosesSaatIni={p.seleksi_proses_id}
+                  prosesList={prosesOptions}
+                />
               </div>
 
               {berkasPeserta.length > 0 && (

@@ -1,6 +1,7 @@
 import { requireRole } from "@/lib/auth/rbac";
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import PageHeader from "../../../_components/page-header";
 import TahapanRow from "./tahapan-row";
 import KewenanganPanel from "../kewenangan-panel";
@@ -28,7 +29,7 @@ const KELOMPOK_LABEL: Record<string, string> = {
 const KELOMPOK_URUTAN = Object.keys(KELOMPOK_LABEL);
 
 export default async function DetailProsesSeleksiPage({ params }: { params: Promise<{ id: string }> }) {
-  await requireRole(["panitia_seleksi", "ketua_pansel", "eksekutif", "super_admin"]);
+  await requireRole(["panitia_seleksi", "ketua_pansel", "eksekutif", "admin_bpsda", "super_admin"]);
   const { id } = await params;
 
   const supabase = await createClient();
@@ -57,6 +58,15 @@ export default async function DetailProsesSeleksiPage({ params }: { params: Prom
         title={`Seleksi ${JENIS_LABEL[proses.jenis_seleksi] ?? proses.jenis_seleksi} — ${proses.jabatan_lowong}`}
         description={`${bumd?.nama ?? "Tanpa entitas spesifik"} · Tahun ${proses.tahun} · ${selesai}/${total} tugas selesai`}
       />
+
+      <div className="flex justify-end">
+        <Link
+          href={`/internal/seleksi/penilaian-ukk/rekap?proses=${proses.id}`}
+          className="text-sm text-primary-700 hover:underline"
+        >
+          🏆 Lihat Rekap &amp; Peringkat Hasil UKK →
+        </Link>
+      </div>
 
       <KewenanganPanel />
 

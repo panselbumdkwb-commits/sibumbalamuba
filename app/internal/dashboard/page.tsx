@@ -155,6 +155,15 @@ const MENU: MenuItem[] = [
     color: "bg-accent-50 text-accent-700",
     group: "Data Seleksi",
   },
+  {
+    href: "/internal/seleksi/proses",
+    label: "Rekap & Peringkat Hasil UKK",
+    description: "Skor akhir tertimbang & peringkat (bukan nilai mentah per asesor).",
+    roles: ["panitia_seleksi", "ketua_pansel", "eksekutif", "admin_bpsda"],
+    icon: "🏆",
+    color: "bg-amber-50 text-amber-700",
+    group: "Data Seleksi",
+  },
 
   // --------------------------------------------- Laporan & Pengawasan
   {

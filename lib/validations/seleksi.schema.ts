@@ -21,3 +21,8 @@ export const batalkanPendaftaranSchema = z.object({
   pesertaId: z.string().uuid(),
   alasan: z.string().max(500).optional(),
 });
+
+export const tautkanProsesSeleksiSchema = z.object({
+  pesertaId: z.string().uuid(),
+  seleksiProsesId: z.string().uuid().nullable(),
+});

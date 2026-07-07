@@ -12,7 +12,7 @@ const JENIS_LABEL: Record<string, string> = {
 };
 
 export default async function DaftarProsesSeleksiPage() {
-  await requireRole(["panitia_seleksi", "ketua_pansel", "eksekutif", "super_admin"]);
+  await requireRole(["panitia_seleksi", "ketua_pansel", "eksekutif", "admin_bpsda", "super_admin"]);
 
   const supabase = await createClient();
   const [{ data: prosesList }, { data: bumdList }] = await Promise.all([

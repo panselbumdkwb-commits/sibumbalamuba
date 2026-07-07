@@ -7,6 +7,7 @@ import {
   verifyBerkasSchema,
   assistedRegisterSchema,
   batalkanPendaftaranSchema,
+  tautkanProsesSeleksiSchema,
 } from "@/lib/validations/seleksi.schema";
 
 /**
@@ -138,5 +139,24 @@ export async function batalkanPendaftaran(input: unknown) {
     detail: parsed.data.alasan ? { alasan: parsed.data.alasan } : null,
   });
 
+  return { success: true as const };
+}
+
+// Menautkan peserta ke satu siklus seleksi (seleksi_proses) — perlu
+// dilakukan panitia supaya Tim UKK tahu peserta mana termasuk siklus
+// mana. Tanpa ini, peserta tidak akan tampil di dashboard Penilaian UKK.
+export async function tautkanProsesSeleksi(input: unknown) {
+  await requireRole(["panitia_seleksi", "ketua_pansel", "super_admin"]);
+
+  const parsed = tautkanProsesSeleksiSchema.safeParse(input);
+  if (!parsed.success) return { success: false as const, error: "Input tidak valid" };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("peserta_seleksi")
+    .update({ seleksi_proses_id: parsed.data.seleksiProsesId })
+    .eq("id", parsed.data.pesertaId);
+
+  if (error) return { success: false as const, error: "Gagal menautkan proses seleksi" };
   return { success: true as const };
 }
