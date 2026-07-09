@@ -108,6 +108,15 @@ const MENU: MenuItem[] = [
     color: "bg-red-50 text-red-700",
     group: "Data BLUD",
   },
+  {
+    href: "/internal/blud/tata-kelola",
+    label: "Tata Kelola BLUD",
+    description: "Kepatuhan PPK-BLUD, inovasi pelayanan, tindak lanjut rekomendasi audit.",
+    roles: ["admin_blud", "admin_bpsda", "eksekutif", "super_admin"],
+    icon: "🏛️",
+    color: "bg-cyan-50 text-cyan-700",
+    group: "Data BLUD",
+  },
 
   // ------------------------------------------------------- Data Seleksi
   {
