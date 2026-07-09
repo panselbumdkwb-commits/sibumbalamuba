@@ -39,6 +39,7 @@ const ROLE_ROUTE_PREFIX: Record<string, string[]> = {
   "/internal/bumd/dashboard-kinerja": ["admin_bumd", "admin_bpsda", "eksekutif", "super_admin"],
   "/internal/bumd/risiko": ["admin_bumd", "admin_bpsda", "eksekutif", "super_admin"],
   "/internal/bumd": ["admin_bumd", "admin_bpsda", "super_admin", "eksekutif"],
+  "/internal/blud/tata-kelola": ["admin_blud", "admin_bpsda", "eksekutif", "super_admin"],
   "/internal/blud/perencanaan": ["admin_blud", "admin_bpsda", "eksekutif", "super_admin"],
   "/internal/blud/monitoring": ["admin_blud", "admin_bpsda", "eksekutif", "super_admin"],
   "/internal/blud/dashboard-kinerja": ["admin_blud", "admin_bpsda", "eksekutif", "super_admin"],

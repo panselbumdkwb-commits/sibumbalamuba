@@ -66,6 +66,10 @@ Auth, RLS) + Vercel.
   independen per asesor, rekap skor tertimbang otomatis + peringkat,
   generate draf Berita Acara UKK, ekspor CSV (Excel) — nilai mentah
   tetap tidak pernah terlihat siapa pun selain asesor pemiliknya
+- ✅ **Tata Kelola BLUD** (`/internal/blud/tata-kelola`) — 3 tab:
+  Kepatuhan PPK-BLUD, Inovasi Pelayanan, Tindak Lanjut Rekomendasi Audit.
+  Melengkapi tabel yang sudah ada sejak migration `0012` tapi belum
+  pernah punya halaman
 
 ## 1. Setup Supabase
 
@@ -167,6 +171,7 @@ Development → Deploy.
 | `/internal/blud/monitoring` | admin_blud, admin_bpsda, eksekutif, super_admin | Lapor & verifikasi realisasi (3-tingkat) |
 | `/internal/blud/dashboard-kinerja` | admin_blud, admin_bpsda, eksekutif, super_admin | Visual target vs realisasi |
 | `/internal/blud/risiko` | admin_blud, admin_bpsda, eksekutif, super_admin | Registrasi risiko pelayanan |
+| `/internal/blud/tata-kelola` | admin_blud, admin_bpsda, eksekutif, super_admin | Kepatuhan, inovasi, tindak lanjut (3 tab) |
 | `/internal/bumd/perencanaan` | admin_bumd, admin_bpsda, eksekutif, super_admin | RKAP & target KPI/IKU |
 | `/internal/bumd/monitoring` | admin_bumd, admin_bpsda, eksekutif, super_admin | Lapor & verifikasi realisasi |
 | `/internal/bumd/dashboard-kinerja` | admin_bumd, admin_bpsda, eksekutif, super_admin | Visual target vs realisasi |
