@@ -70,6 +70,16 @@ Auth, RLS) + Vercel.
   Kepatuhan PPK-BLUD, Inovasi Pelayanan, Tindak Lanjut Rekomendasi Audit.
   Melengkapi tabel yang sudah ada sejak migration `0012` tapi belum
   pernah punya halaman
+- ✅ **Scoring Engine** — `evaluasi_bumd`/`evaluasi_blud` (sejak `0001`
+  ternyata **tidak pernah terisi kode apa pun**, ditemukan saat audit)
+  sekarang dihitung otomatis dari data Monev sungguhan (realisasi
+  terverifikasi × bobot indikator), dengan kategori kesehatan **AA/A/BBB/BB/B/C**.
+  Tombol "Hitung Ulang Skor" ada di Laporan Ringkas Pimpinan
+  (`admin_bpsda`/`super_admin`)
+- ✅ **Sinkronisasi 2 sistem nilai UKK** — skor tertimbang dari instrumen
+  10-aspek (`0017`) sekarang otomatis mengisi rekap 5-tahap (`nilai_ukk`)
+  begitu asesor finalisasi, supaya dashboard peserta dan dashboard Tim
+  UKK selalu konsisten
 
 ## 1. Setup Supabase
 
@@ -95,6 +105,7 @@ Auth, RLS) + Vercel.
    - `supabase/migrations/0015_tahapan_kerja_panitia_seleksi.sql`
    - `supabase/migrations/0016_surat_tata_naskah_dinas.sql`
    - `supabase/migrations/0017_tim_ukk_instrumen_dan_penilaian.sql`
+   - `supabase/migrations/0018_scoring_engine_penilaian_kesehatan.sql`
    - `supabase/seed.sql` (opsional, data contoh)
 3. **Project Settings > API** → salin `Project URL` dan `anon public key`.
 4. Buat akun `super_admin` pertama lewat **Authentication > Add User**,
@@ -508,6 +519,12 @@ setempat.
 
 ## 13. Langkah Selanjutnya
 
+0. **PENTING — konfirmasi ambang batas skor kesehatan**: fungsi
+   `skor_ke_kategori_kesehatan()` (migration `0018`) memakai ambang
+   AA≥90/A≥80/BBB≥70/BB≥60/B≥50/C<50 sebagai **titik awal yang wajar**,
+   BUKAN angka resmi dari regulasi tertentu. Mohon konfirmasi/sesuaikan
+   dengan kebijakan/juknis evaluasi kinerja BUMD-BLUD Kota Batu sebelum
+   dipakai untuk laporan resmi ke pimpinan.
 1. **Jendela waktu input Monev BLUD**: saat ini pembatasan tanggal 1–10
    hanya diterapkan untuk `admin_bumd` (sesuai yang diminta). Kalau
    `admin_blud` perlu batasan waktu serupa (atau tanggal yang berbeda),
@@ -517,11 +534,10 @@ setempat.
    Untuk notifikasi benar-benar real-time (muncul tanpa refresh halaman),
    langkah lanjutannya memakai [Supabase Realtime](https://supabase.com/docs/guides/realtime)
    — beri tahu kalau ini prioritas.
-3. Halaman UI untuk 3 tabel yang sudah ada skemanya tapi belum ada
-   halamannya: **Kepatuhan PPK-BLUD** (`blud_kepatuhan`), **Inovasi
-   Pelayanan** (`blud_inovasi`), **Tindak Lanjut Rekomendasi Audit**
-   (`blud_tindak_lanjut`). Bisa digabung jadi satu halaman "Tata Kelola
-   BLUD" atau dipisah — beri tahu preferensinya.
+3. **Form edit di halaman Bobot Indikator** (`/internal/bobot-indikator`)
+   — sekarang cuma tampilan baca, padahal sejak `0018` tabel ini jadi
+   sumber bobot resmi untuk Scoring Engine. `admin_bpsda` perlu bisa
+   mengubah bobot lewat UI, bukan SQL Editor.
 4. Halaman edit detail seleksi (`/internal/seleksi/[id]`) dengan riwayat
    tahapan lengkap.
 5. Form pendaftaran mandiri peserta Direksi (upload berkas) yang
