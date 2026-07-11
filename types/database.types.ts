@@ -1255,6 +1255,14 @@ export type Database = {
           peringkat: number;
         }[];
       };
+      hitung_skor_bumd: {
+        Args: { p_bumd_id: string; p_tahun: number };
+        Returns: { skor_total: number | null; kategori: string | null; jumlah_indikator_terhitung: number }[];
+      };
+      hitung_skor_blud: {
+        Args: { p_blud_id: string; p_tahun: number };
+        Returns: { skor_total: number | null; kategori: string | null; jumlah_indikator_terhitung: number }[];
+      };
     };
     Enums: {
       user_role: UserRole;
