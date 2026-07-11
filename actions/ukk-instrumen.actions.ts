@@ -98,12 +98,12 @@ export async function finalisasiPenilaian(input: unknown) {
 
   const { data: instrumenList } = await supabase
     .from("ukk_instrumen")
-    .select("id")
+    .select("id, bobot")
     .eq("seleksi_proses_id", parsed.data.seleksiProsesId);
 
   const { data: penilaianList } = await supabase
     .from("ukk_penilaian")
-    .select("id, instrumen_id")
+    .select("id, instrumen_id, skor")
     .eq("peserta_id", parsed.data.pesertaId)
     .eq("tim_ukk_id", profile.id);
 
@@ -121,6 +121,41 @@ export async function finalisasiPenilaian(input: unknown) {
     .eq("tim_ukk_id", profile.id);
 
   if (error) return { success: false as const, error: "Gagal finalisasi" };
+
+  // ---------------------------------------------------------------
+  // SINKRONISASI (menutup Gap #1 dari audit Prompt 01): nilai_ukk
+  // (dipakai peserta dashboard untuk rekap 5-tahap: psikotes/tes
+  // tulis/wawancara/presentasi/ukk) sebelumnya TIDAK PERNAH terisi
+  // dari instrumen berbobot ini — dua sistem berjalan sendiri-sendiri.
+  // Sekarang, begitu asesor finalisasi, skor tertimbang MILIK ASESOR
+  // INI SENDIRI (bukan rata-rata semua asesor — itu tetap dihitung
+  // terpisah oleh get_rekap_ukk_tertimbang untuk panitia/ketua) ikut
+  // disimpan sebagai baris nilai_ukk (tahap='ukk') miliknya, supaya
+  // rekap 5-tahap peserta konsisten dengan hasil detail Tim UKK.
+  // ---------------------------------------------------------------
+  const totalBobot = instrumenList?.reduce((s, i) => s + Number(i.bobot), 0) ?? 0;
+  const skorTertimbang = penilaianList?.reduce((sum, p) => {
+    const bobot = instrumenList?.find((i) => i.id === p.instrumen_id)?.bobot ?? 0;
+    return sum + Number(p.skor) * Number(bobot);
+  }, 0);
+
+  if (totalBobot > 0 && skorTertimbang != null) {
+    await supabase.from("nilai_ukk").upsert(
+      {
+        peserta_id: parsed.data.pesertaId,
+        tim_ukk_id: profile.id,
+        tahap: "ukk",
+        skor: Math.round((skorTertimbang / totalBobot) * 100) / 100,
+        is_final: true,
+        submitted_at: new Date().toISOString(),
+      },
+      { onConflict: "peserta_id,tahap,tim_ukk_id" }
+    );
+    // Sengaja tidak menggagalkan seluruh finalisasi kalau sinkronisasi
+    // ini gagal (mis. RLS/constraint) — nilai instrumen tetap final,
+    // sinkronisasi bisa disusulkan manual oleh super_admin kalau perlu.
+  }
+
   return { success: true as const };
 }
 

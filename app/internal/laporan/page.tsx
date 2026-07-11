@@ -1,6 +1,7 @@
 import { requireRole } from "@/lib/auth/rbac";
 import { createClient } from "@/lib/supabase/server";
 import PageHeader from "../_components/page-header";
+import HitungSkorPanel from "./hitung-skor-panel";
 
 const STATUS_LABEL: Record<string, string> = {
   terdaftar: "Terdaftar",
@@ -19,7 +20,8 @@ const STATUS_LABEL: Record<string, string> = {
  * berkas administrasi peserta SENGAJA tidak ditampilkan di sini.
  */
 export default async function LaporanPimpinanPage() {
-  await requireRole(["eksekutif", "super_admin"]);
+  const profile = await requireRole(["eksekutif", "admin_bpsda", "super_admin"]);
+  const canHitungSkor = profile.role === "admin_bpsda" || profile.role === "super_admin";
 
   const supabase = await createClient();
 
@@ -56,6 +58,8 @@ export default async function LaporanPimpinanPage() {
         <SummaryCard label="Total BLUD" value={bludList?.length ?? 0} />
         <SummaryCard label="Total Pendaftar Seleksi" value={peserta?.length ?? 0} />
       </div>
+
+      {canHitungSkor && <HitungSkorPanel bumdList={bumdList ?? []} bludList={bludList ?? []} />}
 
       <section className="card p-5">
         <p className="font-medium text-slate-900 mb-3">Status Pendaftaran Seleksi</p>
