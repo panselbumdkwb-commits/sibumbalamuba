@@ -1,0 +1,106 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #0c4a6e;
+  --color-primary-strong: #082f49;
+  --color-brand: #ea580c;
+  --color-accent: #059669;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f8fafc;
+  --color-border: #e5e7eb;
+  --color-text: #0f172a;
+  --color-text-muted: #64748b;
+  --radius-card: 0.875rem;
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-surface-muted);
+  color: var(--color-text);
+}
+
+::selection {
+  background: var(--color-primary);
+  color: white;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-150 disabled:opacity-50 disabled:pointer-events-none;
+  }
+  .btn-primary {
+    @apply btn bg-primary-800 text-white hover:bg-primary-900 active:scale-[0.98] shadow-sm;
+  }
+  .btn-brand {
+    @apply btn bg-brand-600 text-white hover:bg-brand-700 active:scale-[0.98] shadow-sm;
+  }
+  .btn-secondary {
+    @apply btn bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 active:scale-[0.98];
+  }
+  .btn-ghost {
+    @apply btn text-slate-500 hover:text-slate-900 hover:bg-slate-100;
+  }
+  .card {
+    @apply bg-white rounded-2xl border border-slate-200 shadow-card;
+  }
+  .input {
+    @apply w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-primary-600 focus:ring-2 focus:ring-primary-100 outline-none transition-shadow;
+  }
+  .label {
+    @apply block text-sm font-medium text-slate-700 mb-1.5;
+  }
+  .badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: white;
+  }
+
+  /* ============================================================
+     TATA NASKAH DINAS — ukuran & tepi kertas resmi (Permendagri
+     1/2023 dan yang lazim diterapkan pemda lain):
+       - Kertas HVS A4
+       - Tepi atas 1,5 cm pada halaman BERKOP (halaman pertama)
+       - Tepi atas 2,5 cm pada halaman lanjutan/lampiran (tanpa kop)
+       - Tepi bawah 2,5 cm, tepi kiri 3 cm, tepi kanan 2,5 cm
+     `@page :first` menangani halaman pertama secara terpisah dari
+     halaman berikutnya — didukung mesin cetak Chromium (dipakai
+     "Simpan sebagai PDF" di browser).
+     ============================================================ */
+  @page {
+    size: A4;
+    margin: 2.5cm 2.5cm 2.5cm 3cm; /* atas kanan bawah kiri — halaman lanjutan */
+  }
+  @page :first {
+    margin-top: 1.5cm; /* halaman pertama, ada kop surat */
+  }
+}
+
+/* Tipografi naskah dinas resmi: Arial 11pt, spasi 1,5 — dipakai baik
+   di pratinjau layar maupun saat dicetak supaya keduanya konsisten. */
+.naskah-dinas {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11pt;
+  line-height: 1.5;
+}
