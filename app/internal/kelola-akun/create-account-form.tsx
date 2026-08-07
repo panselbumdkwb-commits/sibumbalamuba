@@ -122,7 +122,7 @@ export default function CreateAccountForm({
             type="email"
             required
             className="input"
-            placeholder="boleh email internal (mis. nama@sibumbalamuba.internal)"
+            placeholder="boleh email internal (mis. nama@simonaseksi.internal)"
             value={form.email}
             onChange={(e) => update("email", e.target.value)}
           />

@@ -18,7 +18,7 @@ export default async function InternalLayout({
         style={{ borderColor: "var(--color-border)" }}
       >
         <Link href="/internal/dashboard" className="font-medium text-sm shrink-0">
-          SIBUMBALAMUBA
+          SIMONASEKSI
         </Link>
         <div className="hidden md:block">
           <JamWib />

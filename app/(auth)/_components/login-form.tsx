@@ -185,7 +185,7 @@ export default function LoginForm({ mode }: { mode: Mode }) {
         <label className="label" htmlFor="username">Username</label>
         <input
           id="username"
-          name="sibumbalamuba_user"
+          name="simonaseksi_user"
           type="text"
           required
           autoComplete="off"
@@ -204,7 +204,7 @@ export default function LoginForm({ mode }: { mode: Mode }) {
         <div className="relative">
           <input
             id="password"
-            name="sibumbalamuba_pass"
+            name="simonaseksi_pass"
             type={showPassword ? "text" : "password"}
             required
             autoComplete="off"
